@@ -9,6 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -20,6 +23,9 @@ public class RecruiterProfileController {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @GetMapping("/recruiter/create-profile")
     public String showCreateProfileForm(HttpSession session, Model model) {
@@ -39,6 +45,7 @@ public class RecruiterProfileController {
     }
 
     @PostMapping("/recruiter/create-profile")
+    @Transactional
     public String createRecruiterProfile(
             @RequestParam("company") String company,
             @RequestParam("location") String location,
@@ -63,10 +70,19 @@ public class RecruiterProfileController {
                 // Update existing profile
                 recruiter = existingRecruiter;
             } else {
-                // Create new profile
+                // Create new profile using the EntityManager
+                Long userId = user.getId();
+                
+                // Get a fresh reference to the user
+                User freshUser = entityManager.find(User.class, userId);
+                if (freshUser == null) {
+                    throw new IllegalStateException("User not found with ID: " + userId);
+                }
+                
+                // Create and populate recruiter
                 recruiter = new Recruiter();
-                recruiter.setUser(user);
-                recruiter.setId(user.getId()); // Explicitly set the ID to match the user ID
+                recruiter.setId(userId);
+                recruiter.setUser(freshUser);
             }
             
             // Set profile fields
@@ -77,9 +93,18 @@ public class RecruiterProfileController {
             recruiter.setLinkedinUrl(linkedinUrl);
             recruiter.setGithubUrl(githubUrl);
             
-            // Save the profile
-            recruiterRepository.save(recruiter);
+            // Save using entityManager if it's a new entity
+            if (existingRecruiter == null) {
+                System.out.println("Creating new recruiter with ID: " + recruiter.getId());
+                entityManager.persist(recruiter);
+                entityManager.flush();
+            } else {
+                // Update existing entity
+                System.out.println("Updating existing recruiter with ID: " + recruiter.getId());
+                recruiterRepository.save(recruiter);
+            }
             
+            System.out.println("Successfully saved recruiter profile with ID: " + recruiter.getId());
             return "redirect:/dashboard/recruiter";
         } catch (Exception e) {
             e.printStackTrace();
