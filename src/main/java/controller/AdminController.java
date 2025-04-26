@@ -200,6 +200,7 @@ public class AdminController {
                 case RECRUITER:
                     Recruiter recruiter = new Recruiter();
                     recruiter.setUser(newUser);
+                    recruiter.setId(newUser.getId());
                     recruiterRepository.save(recruiter);
                     break;
                 case SEEKER:

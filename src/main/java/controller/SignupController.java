@@ -90,6 +90,7 @@ public class SignupController {
                     break;
                 case "RECRUITER":
                     Recruiter recruiter = new Recruiter();
+                    recruiter.setId(savedUser.getId()); // Explicitly set ID to match user ID
                     // Create a new transaction by fetching the user again
                     User fetchedRecruiterUser = userRepository.findById(savedUser.getId()).orElse(null);
                     if (fetchedRecruiterUser != null) {
@@ -99,6 +100,7 @@ public class SignupController {
                     break;
                 case "ADMIN":
                     Admin admin = new Admin();
+                    admin.setId(savedUser.getId()); // Explicitly set ID to match user ID
                     // Create a new transaction by fetching the user again
                     User fetchedAdminUser = userRepository.findById(savedUser.getId()).orElse(null);
                     if (fetchedAdminUser != null) {

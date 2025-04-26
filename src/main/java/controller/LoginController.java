@@ -50,6 +50,9 @@ public class LoginController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private AdminRepository adminRepository;
+
     @Value("${file.upload-dir:uploads/}")
     private String uploadDir;
 
@@ -174,7 +177,9 @@ public class LoginController {
         
         Recruiter recruiter = recruiterRepository.findByUser(user);
         if (recruiter == null) {
-            return "redirect:/login";
+            System.out.println("RECRUITER DASHBOARD - No recruiter profile found, redirecting to create profile");
+            // Redirect to profile creation page
+            return "redirect:/recruiter/create-profile";
         }
         
         // Get company jobs
@@ -200,8 +205,28 @@ public class LoginController {
     
     @GetMapping("/dashboard/admin")
     public String redirectToAdminDashboard(HttpSession session) {
-        // This is just a placeholder for the admin dashboard
-        return "redirect:/admin";
+        // Check if user is logged in and is an admin
+        User user = (User) session.getAttribute("user");
+        if (user == null || user.getRole() != User.UserRole.ADMIN) {
+            return "redirect:/login";
+        }
+        
+        // Check if admin profile exists
+        Admin admin = adminRepository.findByUser(user);
+        if (admin == null) {
+            // Create a basic admin profile
+            admin = new Admin();
+            admin.setUser(user);
+            admin.setId(user.getId());
+            admin.setAccessLevel("Standard");
+            admin.setSuperAdmin(false);
+            admin.setDepartment("General");
+            admin.setSecurityClearance("Level 1");
+            adminRepository.save(admin);
+        }
+        
+        // Redirect to admin dashboard
+        return "redirect:/admin/dashboard";
     }
 
     @PostMapping("/login")

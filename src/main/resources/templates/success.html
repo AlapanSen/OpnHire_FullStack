@@ -68,6 +68,11 @@
     }
 
     document.getElementById('userRole').textContent = roleName;
+    
+    // Automatically redirect to login page after 3 seconds
+    setTimeout(function() {
+        window.location.href = "/login";
+    }, 3000);
 </script>
 </body>
 </html>

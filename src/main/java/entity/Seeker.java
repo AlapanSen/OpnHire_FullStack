@@ -10,7 +10,8 @@ public class Seeker {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @MapsId
+    @JoinColumn(name = "id")
     private User user;
 
     private String title;
