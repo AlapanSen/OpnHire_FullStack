@@ -1,26 +1,30 @@
 package entity;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "seekers")
 public class Seeker {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
-    @MapsId
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
     private User user;
 
+    private String title;
+    private String about;
+    private String location;
+    private String skills;
+    private String experience;
+    private String education;
+    private String profilePic;
+    private String resume;
     private String linkedinUrl;
     private String githubUrl;
     private String websiteUrl;
-    private String location;
-    private String title; // Professional title
-    private String profilePic;
-    private String about;
-    private String resume; // Stores the resume file path
     
     // Employment status field to show if seeker is currently employed
     @Enumerated(EnumType.STRING)
