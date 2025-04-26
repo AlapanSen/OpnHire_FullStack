@@ -17,4 +17,5 @@ RUN ./mvnw package -DskipTests
 EXPOSE 8080
 ENV PORT=8080
 
-CMD ["java", "-jar", "target/UserBackend-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"] 
+# Use -Dserver.port to explicitly set the port
+CMD ["java", "-Dserver.port=8080", "-jar", "target/UserBackend-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"] 

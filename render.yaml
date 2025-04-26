@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: opnhire
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8080 
