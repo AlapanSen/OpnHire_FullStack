@@ -79,6 +79,7 @@ public class SignupController {
                 case "SEEKER":
                     Seeker seeker = new Seeker();
                     seeker.setUser(savedUser);
+                    seeker.setEmploymentStatus(Seeker.EmploymentStatus.LOOKING_FOR_WORK);
                     // Create a new transaction by fetching the user again
                     User fetchedUser = userRepository.findById(savedUser.getId()).orElse(null);
                     if (fetchedUser != null) {

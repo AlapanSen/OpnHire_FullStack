@@ -108,8 +108,18 @@ public class LoginController {
         Seeker seeker = seekerRepository.findByUser(user);
         
         if (seeker == null) {
-            System.out.println("SEEKER DASHBOARD - No seeker profile found for user, redirecting to login");
-            return "redirect:/login";
+            System.out.println("SEEKER DASHBOARD - No seeker profile found, creating one");
+            try {
+                seeker = new Seeker();
+                seeker.setUser(user);
+                seeker.setEmploymentStatus(Seeker.EmploymentStatus.LOOKING_FOR_WORK);
+                seeker = seekerRepository.save(seeker);
+                System.out.println("SEEKER DASHBOARD - Created new seeker profile with ID: " + seeker.getId());
+            } catch (Exception e) {
+                System.err.println("SEEKER DASHBOARD - Failed to create seeker profile: " + e.getMessage());
+                e.printStackTrace();
+                return "redirect:/login?error=Failed+to+create+seeker+profile";
+            }
         }
         
         System.out.println("SEEKER DASHBOARD - Seeker profile found, collecting statistics");
