@@ -59,14 +59,19 @@ public class LoginController {
     }
 
     @GetMapping("/dashboard")
-    public String showDashboard(HttpSession session) {
+    public String showDashboard(HttpSession session, Model model) {
         // Check if user is logged in
         User user = (User) session.getAttribute("user");
+        System.out.println("Dashboard GET request - User in session: " + (user != null ? user.getEmail() : "null"));
+        
         if (user == null) {
+            System.out.println("User not in session, redirecting to login");
             return "redirect:/login";
         }
         
         // Redirect based on user role
+        System.out.println("User role: " + user.getRole() + ", redirecting to appropriate dashboard");
+        
         switch (user.getRole()) {
             case ADMIN:
                 return "redirect:/dashboard/admin";
@@ -76,6 +81,7 @@ public class LoginController {
                 return "redirect:/dashboard/seeker";
             default:
                 // Invalid role
+                System.out.println("Invalid role: " + user.getRole() + ", invalidating session");
                 session.invalidate();
                 return "redirect:/login?error=Invalid role";
         }
@@ -182,52 +188,70 @@ public class LoginController {
             RedirectAttributes redirectAttributes) {
         
         try {
-            System.out.println("Login attempt for email: " + email);
+            System.out.println("LOGIN ATTEMPT - Email: " + email);
             User user = userRepository.findByEmail(email);
             
             if (user == null) {
-                System.out.println("User not found with email: " + email);
+                System.out.println("LOGIN FAILED - User not found: " + email);
                 redirectAttributes.addFlashAttribute("error", "User not found with email: " + email);
                 return "redirect:/login";
             }
             
             // Simple password check (in a real app, use proper password hashing)
             if (!user.getPassword().equals(password)) {
-                System.out.println("Invalid password for user: " + email);
+                System.out.println("LOGIN FAILED - Invalid password for: " + email);
                 redirectAttributes.addFlashAttribute("error", "Invalid password");
                 return "redirect:/login";
             }
             
+            // AUTHENTICATION SUCCESS
+            System.out.println("LOGIN SUCCESS - User: " + email + ", Role: " + user.getRole());
+            
             // Set user in session
             session.setAttribute("user", user);
             session.setAttribute("userId", user.getId());
-            System.out.println("User authenticated successfully: " + email + ", Role: " + user.getRole());
+            
+            // Debug session attributes
+            System.out.println("Session ID: " + session.getId());
+            System.out.println("Session Attributes:");
+            Enumeration<String> attributeNames = session.getAttributeNames();
+            while (attributeNames.hasMoreElements()) {
+                String attributeName = attributeNames.nextElement();
+                System.out.println("  " + attributeName + ": " + session.getAttribute(attributeName));
+            }
             
             // Redirect based on user role
             User.UserRole role = user.getRole();
             if (role == null) {
-                System.out.println("User has no assigned role: " + email);
+                System.out.println("LOGIN ERROR - User has no role: " + email);
                 session.invalidate();
                 redirectAttributes.addFlashAttribute("error", "User has no assigned role");
                 return "redirect:/login";
             }
             
+            // Construct redirect path
+            String redirectPath = "";
             switch (role) {
                 case ADMIN:
-                    return "redirect:/dashboard/admin";
+                    redirectPath = "/dashboard/admin";
+                    break;
                 case RECRUITER:
-                    return "redirect:/dashboard/recruiter";
+                    redirectPath = "/dashboard/recruiter";
+                    break;
                 case SEEKER:
-                    return "redirect:/dashboard/seeker";
+                    redirectPath = "/dashboard/seeker";
+                    break;
                 default:
-                    // Invalid role
-                    System.out.println("Invalid user role: " + role + " for user: " + email);
+                    System.out.println("LOGIN ERROR - Invalid role: " + role + " for user: " + email);
                     session.invalidate();
                     redirectAttributes.addFlashAttribute("error", "Invalid user role: " + role);
                     return "redirect:/login";
             }
+            
+            System.out.println("REDIRECTING TO: " + redirectPath);
+            return "redirect:" + redirectPath;
         } catch (Exception e) {
-            System.err.println("Login error: " + e.getMessage());
+            System.err.println("LOGIN ERROR - Exception: " + e.getMessage());
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Login error: " + e.getMessage());
             return "redirect:/login";
