@@ -52,6 +52,7 @@ public class UserDataIntegrityService {
                     if (seekerRepository.findById(userId).isEmpty()) {
                         Seeker seeker = new Seeker();
                         seeker.setUser(user);
+                        seeker.setId(userId);
                         seekerRepository.save(seeker);
                         seekersCreated++;
                     }

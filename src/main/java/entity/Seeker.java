@@ -7,7 +7,6 @@ import java.util.List;
 @Table(name = "seekers")
 public class Seeker {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne

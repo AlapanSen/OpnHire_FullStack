@@ -205,6 +205,7 @@ public class AdminController {
                 case SEEKER:
                     Seeker seeker = new Seeker();
                     seeker.setUser(newUser);
+                    seeker.setId(newUser.getId());
                     seekerRepository.save(seeker);
                     break;
             }
