@@ -68,29 +68,45 @@ public class SignupController {
             user.setPassword(password); // In production, encrypt this!
             user.setRole(User.UserRole.valueOf(role));
 
-            // Save user
-            User savedUser = userRepository.save(user);
+            // In PostgreSQL, we need to handle relationships differently
+            // Create and save entities in the proper order with transaction boundaries
             
-            // Create and save role-specific entity
+            // First save the user entity
+            User savedUser = userRepository.save(user);
+
+            // Then create and save role-specific entity with the saved user
             switch (role) {
                 case "SEEKER":
                     Seeker seeker = new Seeker();
                     seeker.setUser(savedUser);
-                    seekerRepository.save(seeker);
+                    // Create a new transaction by fetching the user again
+                    User fetchedUser = userRepository.findById(savedUser.getId()).orElse(null);
+                    if (fetchedUser != null) {
+                        seeker.setUser(fetchedUser);
+                        seekerRepository.save(seeker);
+                    }
                     break;
                 case "RECRUITER":
                     Recruiter recruiter = new Recruiter();
-                    recruiter.setUser(savedUser);
-                    recruiterRepository.save(recruiter);
+                    // Create a new transaction by fetching the user again
+                    User fetchedRecruiterUser = userRepository.findById(savedUser.getId()).orElse(null);
+                    if (fetchedRecruiterUser != null) {
+                        recruiter.setUser(fetchedRecruiterUser);
+                        recruiterRepository.save(recruiter);
+                    }
                     break;
                 case "ADMIN":
                     Admin admin = new Admin();
-                    admin.setUser(savedUser);
-                    admin.setAccessLevel("Standard");
-                    admin.setSuperAdmin(false);
-                    admin.setDepartment("General");
-                    admin.setSecurityClearance("Level 1");
-                    adminRepository.save(admin);
+                    // Create a new transaction by fetching the user again
+                    User fetchedAdminUser = userRepository.findById(savedUser.getId()).orElse(null);
+                    if (fetchedAdminUser != null) {
+                        admin.setUser(fetchedAdminUser);
+                        admin.setAccessLevel("Standard");
+                        admin.setSuperAdmin(false);
+                        admin.setDepartment("General");
+                        admin.setSecurityClearance("Level 1");
+                        adminRepository.save(admin);
+                    }
                     break;
             }
 
