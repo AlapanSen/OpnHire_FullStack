@@ -90,6 +90,18 @@ public class Seeker {
         return about;
     }
     
+    public String getSkills() {
+        return skills;
+    }
+    
+    public String getExperience() {
+        return experience;
+    }
+    
+    public String getEducation() {
+        return education;
+    }
+    
     public String getResume() {
         return resume;
     }
@@ -141,6 +153,18 @@ public class Seeker {
 
     public void setAbout(String about) {
         this.about = about;
+    }
+    
+    public void setSkills(String skills) {
+        this.skills = skills;
+    }
+    
+    public void setExperience(String experience) {
+        this.experience = experience;
+    }
+    
+    public void setEducation(String education) {
+        this.education = education;
     }
     
     public void setResume(String resume) {

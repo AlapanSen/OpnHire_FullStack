@@ -212,4 +212,69 @@ public class SeekerProfileController {
         
         return "seeker/profile";
     }
+
+    @GetMapping("/seeker/create-profile")
+    public String showCreateProfileForm(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null || user.getRole() != User.UserRole.SEEKER) {
+            return "redirect:/login?error=Access denied. Please log in as a job seeker.";
+        }
+        
+        // Check if seeker already has a profile
+        Seeker existingSeeker = seekerRepository.findByUser(user);
+        if (existingSeeker != null) {
+            // Pre-populate the form with existing data
+            model.addAttribute("seeker", existingSeeker);
+        }
+        
+        return "seeker/create-profile";
+    }
+
+    @PostMapping("/seeker/create-profile")
+    public String createSeekerProfile(
+            @RequestParam("title") String title,
+            @RequestParam("location") String location,
+            @RequestParam("employmentStatus") String employmentStatus,
+            @RequestParam("skills") String skills,
+            @RequestParam("about") String about,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        
+        User user = (User) session.getAttribute("user");
+        if (user == null || user.getRole() != User.UserRole.SEEKER) {
+            return "redirect:/login?error=Access denied. Please log in as a job seeker.";
+        }
+        
+        try {
+            // Check if a seeker profile already exists
+            Seeker existingSeeker = seekerRepository.findByUser(user);
+            
+            Seeker seeker;
+            if (existingSeeker != null) {
+                // Update existing profile
+                seeker = existingSeeker;
+            } else {
+                // Create new profile
+                seeker = new Seeker();
+                seeker.setUser(user);
+                seeker.setId(user.getId()); // Explicitly set the ID to match the user ID
+            }
+            
+            // Set profile fields
+            seeker.setTitle(title);
+            seeker.setLocation(location);
+            seeker.setEmploymentStatus(Seeker.EmploymentStatus.valueOf(employmentStatus));
+            seeker.setSkills(skills);
+            seeker.setAbout(about);
+            
+            // Save the profile
+            seekerRepository.save(seeker);
+            
+            return "redirect:/dashboard/seeker";
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Error creating profile: " + e.getMessage());
+            return "redirect:/seeker/create-profile";
+        }
+    }
 } 

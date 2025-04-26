@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            height: 100px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome! Complete Your Profile</h1>
+    
+    <p>Let's set up your job seeker profile so companies can find you.</p>
+    
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+    
+    <form action="/seeker/create-profile" method="post">
+        <div class="form-group">
+            <label for="title">Professional Title</label>
+            <input type="text" id="title" name="title" placeholder="e.g., Software Engineer, Data Analyst" th:value="${seeker != null ? seeker.title : ''}">
+        </div>
+        
+        <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" placeholder="e.g., New York, NY" th:value="${seeker != null ? seeker.location : ''}">
+        </div>
+        
+        <div class="form-group">
+            <label for="employmentStatus">Employment Status</label>
+            <select id="employmentStatus" name="employmentStatus">
+                <option value="LOOKING_FOR_WORK" th:selected="${seeker != null && seeker.employmentStatus.name() == 'LOOKING_FOR_WORK'}">Looking for Work</option>
+                <option value="EMPLOYED" th:selected="${seeker != null && seeker.employmentStatus.name() == 'EMPLOYED'}">Currently Employed</option>
+                <option value="OPEN_TO_OPPORTUNITIES" th:selected="${seeker != null && seeker.employmentStatus.name() == 'OPEN_TO_OPPORTUNITIES'}">Open to Opportunities</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="skills">Skills (comma separated)</label>
+            <input type="text" id="skills" name="skills" placeholder="e.g., Java, SQL, JavaScript" th:value="${seeker != null ? seeker.skills : ''}">
+        </div>
+        
+        <div class="form-group">
+            <label for="about">About Me</label>
+            <textarea id="about" name="about" placeholder="Tell employers about yourself..." th:text="${seeker != null ? seeker.about : ''}"></textarea>
+        </div>
+        
+        <button type="submit">Create Profile</button>
+    </form>
+</body>
+</html> 
