@@ -484,23 +484,78 @@ public class LoginController {
         System.out.println("DIRECT DASHBOARD - Looking up seeker profile");
         Seeker seeker = seekerRepository.findByUser(user);
         
+        // Auto-create seeker profile if it doesn't exist
         if (seeker == null) {
-            System.out.println("DIRECT DASHBOARD - No seeker profile found");
-            return "login";
+            System.out.println("DIRECT DASHBOARD - No seeker profile found, creating one now");
+            try {
+                seeker = new Seeker();
+                // Fetch a fresh copy of the user entity to avoid detached entity issues
+                User freshUser = userRepository.findById(user.getId()).orElse(null);
+                if (freshUser != null) {
+                    seeker.setUser(freshUser);
+                    seeker = seekerRepository.save(seeker);
+                    System.out.println("DIRECT DASHBOARD - Created new seeker profile with ID: " + seeker.getId());
+                } else {
+                    System.out.println("DIRECT DASHBOARD - Failed to fetch fresh user entity");
+                    return "login";
+                }
+            } catch (Exception e) {
+                System.err.println("DIRECT DASHBOARD - Error creating seeker profile: " + e.getMessage());
+                e.printStackTrace();
+                return "login";
+            }
         }
         
         try {
-            // Get statistics
-            int profileViews = (int) profileViewRepository.countBySeeker(seeker);
-            int savedJobs = (int) savedJobRepository.countBySeeker(seeker);
-            int jobApplications = (int) jobApplicationRepository.countBySeeker(seeker);
-            int profileCompletionPercentage = calculateProfileCompletionPercentage(seeker);
+            // Get statistics (with null checks)
+            int profileViews = 0;
+            int savedJobs = 0;  
+            int jobApplications = 0;
+            int profileCompletionPercentage = 0;
             
-            // Get notifications
-            List<Notification> notifications = notificationService.getRecentNotificationsForUser(user.getId(), 5);
+            try {
+                profileViews = (int) profileViewRepository.countBySeeker(seeker);
+            } catch (Exception e) {
+                System.out.println("Error getting profile views: " + e.getMessage());
+            }
             
-            // Get recommended jobs (sample implementation)
-            List<Job> recommendedJobs = jobRepository.findTop5ByOrderByCreatedAtDesc();
+            try {
+                savedJobs = (int) savedJobRepository.countBySeeker(seeker);
+            } catch (Exception e) {
+                System.out.println("Error getting saved jobs: " + e.getMessage());
+            }
+            
+            try {
+                jobApplications = (int) jobApplicationRepository.countBySeeker(seeker);
+            } catch (Exception e) {
+                System.out.println("Error getting job applications: " + e.getMessage());
+            }
+            
+            try {
+                profileCompletionPercentage = calculateProfileCompletionPercentage(seeker);
+            } catch (Exception e) {
+                System.out.println("Error calculating profile completion: " + e.getMessage());
+            }
+            
+            // Get notifications with null check
+            List<Notification> notifications = null;
+            try {
+                notifications = notificationService.getRecentNotificationsForUser(user.getId(), 5);
+            } catch (Exception e) {
+                System.out.println("Error getting notifications: " + e.getMessage());
+                notifications = new ArrayList<>();
+            }
+            
+            // Get recommended jobs (sample implementation) with null check
+            List<Job> recommendedJobs = null;
+            try {
+                recommendedJobs = jobRepository.findTop5ByOrderByCreatedAtDesc();
+            } catch (Exception e) {
+                System.out.println("Error getting recommended jobs: " + e.getMessage());
+                recommendedJobs = new ArrayList<>();
+            }
+            
+            System.out.println("DIRECT DASHBOARD - Adding data to model");
             
             // Add data to the model
             model.addAttribute("seeker", seeker);
