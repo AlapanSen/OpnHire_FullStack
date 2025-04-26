@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Applications - OpnHire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3 {
+            color: #e1e1e1;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #a0a0a0;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            color: #ffffff;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-input {
+            background-color: #2a2a3a;
+            border: 1px solid #444;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            min-width: 200px;
+        }
+        
+        .application-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .application-item {
+            background-color: #282840;
+            border-radius: 8px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 200px;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .applicant-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .applicant-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #8a2be2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+        
+        .applicant-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .applicant-title {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+        
+        .job-info {
+            border-left: 1px solid #444;
+            padding-left: 20px;
+        }
+        
+        .job-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .application-date {
+            color: #a0a0a0;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-view {
+            background-color: #1976d2;
+            color: white;
+        }
+        
+        .status-select {
+            background-color: #2a2a3a;
+            border: 1px solid #444;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            width: 100%;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .status-APPLIED {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+        
+        .status-REVIEW {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+        
+        .status-INTERVIEW {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .status-REJECTED {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .status-ACCEPTED {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #4caf50;
+        }
+        
+        .alert-error {
+            background-color: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+        
+        @media (max-width: 768px) {
+            .application-item {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .job-info {
+                border-left: none;
+                padding-left: 0;
+                border-top: 1px solid #444;
+                padding-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard/recruiter" class="back-link">← Back to Dashboard</a>
+        
+        <div class="page-header">
+            <h1>Review Applications</h1>
+        </div>
+        
+        <!-- Success/Error Messages -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        
+        <!-- Filter Section -->
+        <div class="card">
+            <h3>Filters</h3>
+            <div class="filter-section">
+                <select id="jobFilter" class="filter-input" onchange="filterApplications()">
+                    <option value="">All Jobs</option>
+                    <option th:each="job : ${jobs}" th:value="${job.id}" th:text="${job.title}"></option>
+                </select>
+                
+                <select id="statusFilter" class="filter-input" onchange="filterApplications()">
+                    <option value="">All Statuses</option>
+                    <option value="APPLIED">Applied</option>
+                    <option value="REVIEW">In Review</option>
+                    <option value="INTERVIEW">Interview</option>
+                    <option value="ACCEPTED">Accepted</option>
+                    <option value="REJECTED">Rejected</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Applications List -->
+        <div class="application-list" th:if="${applications != null && !applications.isEmpty()}">
+            <div th:each="jobApplication : ${applications}" 
+                 th:id="'app-' + ${jobApplication.id}" 
+                 th:attr="data-job-id=${jobApplication.job.id},data-status=${jobApplication.status}"
+                 class="application-item">
+                <div class="applicant-info">
+                    <div class="applicant-avatar" th:if="${jobApplication.seeker.profilePic == null || jobApplication.seeker.profilePic.isEmpty()}" 
+                         th:text="${jobApplication.seeker.user.firstName.substring(0,1)}">A</div>
+                    <div class="applicant-avatar" th:if="${jobApplication.seeker.profilePic != null && !jobApplication.seeker.profilePic.isEmpty()}">
+                        <img th:src="@{'/uploads/' + ${jobApplication.seeker.profilePic}}" alt="Applicant" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    </div>
+                    
+                    <div>
+                        <div class="applicant-name" th:text="${jobApplication.seeker.user.firstName + ' ' + jobApplication.seeker.user.lastName}">Applicant Name</div>
+                        <div class="applicant-title" th:if="${jobApplication.seeker.location != null && !jobApplication.seeker.location.isEmpty()}" th:text="${jobApplication.seeker.location}">Location</div>
+                        <div class="application-date" th:text="${'Applied on ' + #temporals.format(jobApplication.appliedDate, 'MMM dd, yyyy')}">Applied on Apr 12, 2023</div>
+                    </div>
+                </div>
+                
+                <div class="job-info">
+                    <div class="job-title" th:text="${jobApplication.job.title}">Senior Frontend Developer</div>
+                    <div class="status-badge" th:classappend="${'status-' + jobApplication.status.toString()}" th:text="${jobApplication.status}">APPLIED</div>
+                </div>
+                
+                <div class="action-buttons">
+                    <a th:href="@{'/seeker/profile/' + ${jobApplication.seeker.id}}" class="btn btn-view">View Profile</a>
+                    
+                    <!-- Resume download button - show only if resume exists -->
+                    <a th:if="${jobApplication.resumeUsed != null && !jobApplication.resumeUsed.isEmpty()}" 
+                       th:href="@{'/applications/' + ${jobApplication.id} + '/download-resume'}" 
+                       class="btn btn-view" 
+                       style="background-color: #4CAF50; margin-top: 8px; margin-bottom: 8px;">
+                        Download Resume
+                    </a>
+                    <div th:if="${jobApplication.resumeUsed == null || jobApplication.resumeUsed.isEmpty()}" 
+                         style="color: #a0a0a0; font-size: 12px; margin: 8px 0; text-align: center;">
+                        No resume available
+                    </div>
+                    
+                    <select class="status-select" th:id="'status-' + ${jobApplication.id}" 
+                            th:attr="data-application-id=${jobApplication.id},data-current-status=${jobApplication.status}"
+                            onchange="updateApplicationStatus(this)">
+                        <option value="APPLIED" th:selected="${jobApplication.status == T(entity.JobApplication.ApplicationStatus).APPLIED}">Applied</option>
+                        <option value="REVIEW" th:selected="${jobApplication.status == T(entity.JobApplication.ApplicationStatus).REVIEW}">In Review</option>
+                        <option value="INTERVIEW" th:selected="${jobApplication.status == T(entity.JobApplication.ApplicationStatus).INTERVIEW}">Interview</option>
+                        <option value="ACCEPTED" th:selected="${jobApplication.status == T(entity.JobApplication.ApplicationStatus).ACCEPTED}">Accepted</option>
+                        <option value="REJECTED" th:selected="${jobApplication.status == T(entity.JobApplication.ApplicationStatus).REJECTED}">Rejected</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div class="empty-state" th:if="${applications == null || applications.isEmpty()}">
+            <h3>No Applications Found</h3>
+            <p>There are no job applications to review at this time.</p>
+        </div>
+    </div>
+    
+    <script>
+        function updateApplicationStatus(selectElement) {
+            const applicationId = selectElement.getAttribute('data-application-id');
+            const newStatus = selectElement.value;
+            const currentStatus = selectElement.getAttribute('data-current-status');
+            
+            // No need to update if status hasn't changed
+            if (newStatus === currentStatus) {
+                return;
+            }
+            
+            // Send AJAX request to update status
+            fetch(`/applications/${applicationId}/update-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the status badge
+                    const applicationItem = document.getElementById(`app-${applicationId}`);
+                    const statusBadge = applicationItem.querySelector('.status-badge');
+                    
+                    // Remove old status class
+                    statusBadge.classList.remove(`status-${currentStatus}`);
+                    // Add new status class
+                    statusBadge.classList.add(`status-${newStatus}`);
+                    // Update text
+                    statusBadge.textContent = newStatus;
+                    
+                    // Update data-current-status attribute
+                    selectElement.setAttribute('data-current-status', newStatus);
+                    
+                    // Show success message
+                    alert(`Application status updated to ${newStatus}`);
+                } else {
+                    // Show error message
+                    alert(`Error: ${data.message}`);
+                    // Reset select to previous value
+                    selectElement.value = currentStatus;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the application status');
+                // Reset select to previous value
+                selectElement.value = currentStatus;
+            });
+        }
+        
+        function filterApplications() {
+            const jobFilter = document.getElementById('jobFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            // Get all application items
+            const applicationItems = document.querySelectorAll('.application-item');
+            
+            applicationItems.forEach(item => {
+                let showItem = true;
+                
+                // Check job filter
+                if (jobFilter && item.getAttribute('data-job-id') !== jobFilter) {
+                    showItem = false;
+                }
+                
+                // Check status filter
+                if (statusFilter && !item.querySelector(`.status-${statusFilter}`)) {
+                    showItem = false;
+                }
+                
+                // Show or hide the item
+                item.style.display = showItem ? 'grid' : 'none';
+            });
+        }
+    </script>
+</body>
+</html> 

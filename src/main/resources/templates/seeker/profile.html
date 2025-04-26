@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - OpnHire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #e1e1e1;
+            margin-bottom: 20px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            padding: 30px;
+        }
+        
+        .preview-card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .preview-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            background-color: #2a2a3a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin-right: 20px;
+            overflow: hidden;
+        }
+        
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .user-title {
+            color: #a0a0a0;
+            margin-bottom: 5px;
+        }
+        
+        .user-location {
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+        
+        .profile-links {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .profile-link {
+            color: #8a2be2;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .profile-link:hover {
+            text-decoration: underline;
+        }
+        
+        .about-me {
+            margin-top: 20px;
+            line-height: 1.6;
+            color: #e1e1e1;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #2a2a3a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #ff69b4, #8a2be2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0a0;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .alert-error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+        
+        .nav-link {
+            color: #a0a0a0;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: #ffffff;
+        }
+        
+        .navigation {
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        
+        .no-data {
+            color: #777;
+            font-style: italic;
+        }
+        
+        .file-upload {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload label {
+            padding: 8px 15px;
+            background-color: #2a2a3a;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        .file-name {
+            margin-left: 10px;
+            color: #a0a0a0;
+        }
+        
+        .current-photo {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .current-photo-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 10px;
+        }
+        
+        .current-photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navigation">
+            <a href="/dashboard/seeker" class="nav-link">Dashboard</a>
+            <a href="/seeker-profile" class="nav-link active">My Profile</a>
+            <a href="/saved-jobs" class="nav-link">Saved Jobs</a>
+            <a href="/applications" class="nav-link">My Applications</a>
+            <a href="/logout" class="nav-link">Logout</a>
+        </div>
+    
+        <div class="page-header">
+            <h1>My Profile</h1>
+        </div>
+        
+        <!-- Success/Error Messages -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}">Profile updated successfully!</div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}">An error occurred.</div>
+        
+        <!-- User Profile Preview -->
+        <div class="preview-card">
+            <div class="preview-header">
+                <!-- Show uploaded profile picture if available -->
+                <div class="profile-picture" th:if="${seeker.profilePic != null && !seeker.profilePic.isEmpty()}">
+                    <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture">
+                </div>
+                
+                <!-- Show first letter of user's name if no profile picture -->
+                <div class="profile-picture" th:if="${seeker.profilePic == null || seeker.profilePic.isEmpty()}">
+                    <span th:text="${session.user != null ? session.user.firstName.substring(0,1).toUpperCase() : 'U'}">A</span>
+                </div>
+                
+                <div>
+                    <div class="user-name" th:text="${session.user != null ? session.user.firstName + ' ' + session.user.lastName : 'User Name'}">John Doe</div>
+                    <div class="user-title" th:if="${seeker.title != null && !seeker.title.isEmpty()}" th:text="${seeker.title}" style="color: #a0a0a0; margin-bottom: 5px;">Senior Developer</div>
+                    <div class="user-location" th:text="${seeker.location != null && !seeker.location.isEmpty() ? seeker.location : 'Location not specified'}">San Francisco, CA</div>
+                    <div class="employment-status" 
+                         th:if="${seeker.employmentStatus != null}" 
+                         th:text="${seeker.employmentStatus.displayName}" 
+                         th:style="${seeker.employmentStatus.name() == 'EMPLOYED' ? 'color: #4CAF50;' : (seeker.employmentStatus.name() == 'OPEN_TO_OPPORTUNITIES' ? 'color: #FFC107;' : 'color: #2196F3;')}"
+                         style="margin-top: 5px; font-size: 14px; font-weight: 500;">Looking for Work</div>
+                    <div class="current-employer" 
+                         th:if="${seeker.employmentStatus != null && seeker.employmentStatus.name() == 'EMPLOYED' && seeker.currentEmployer != null && !seeker.currentEmployer.isEmpty()}" 
+                         style="color: #a0a0a0; font-size: 14px; margin-top: 3px;">
+                        <span>Currently at </span><span th:text="${seeker.currentEmployer}">Google</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-links">
+                <a th:if="${seeker.websiteUrl != null && !seeker.websiteUrl.isEmpty()}" 
+                   th:href="${seeker.websiteUrl}" class="profile-link" target="_blank">🌐 Portfolio</a>
+                <a th:if="${seeker.linkedinUrl != null && !seeker.linkedinUrl.isEmpty()}" 
+                   th:href="${seeker.linkedinUrl}" class="profile-link" target="_blank">📎 LinkedIn</a>
+                <a th:if="${seeker.githubUrl != null && !seeker.githubUrl.isEmpty()}" 
+                   th:href="${seeker.githubUrl}" class="profile-link" target="_blank">💻 GitHub</a>
+            </div>
+            
+            <div class="about-me" th:if="${seeker.about != null && !seeker.about.isEmpty()}" th:text="${seeker.about}">
+                I am a software developer with 5 years of experience in web development.
+                Currently looking for new opportunities in the tech industry.
+            </div>
+            <div class="about-me no-data" th:if="${seeker.about == null || seeker.about.isEmpty()}">
+                No bio provided. Add information about yourself below to tell employers about your experience and skills.
+            </div>
+        </div>
+        
+        <!-- Profile Edit Form -->
+        <div class="form-card">
+            <form th:action="@{/seeker-profile/update}" method="post" th:object="${seeker}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    
+                    <!-- Show current profile picture if available -->
+                    <div class="current-photo" th:if="${seeker.profilePic != null && !seeker.profilePic.isEmpty()}">
+                        <div class="current-photo-preview">
+                            <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Current Profile Picture">
+                        </div>
+                        <span>Current profile picture</span>
+                    </div>
+                    
+                    <!-- File upload field -->
+                    <div class="file-upload">
+                        <label for="profileImage">Choose a new profile picture</label>
+                        <input type="file" id="profileImage" name="profileImage" accept="image/*" onchange="updateFileName(this)">
+                        <span class="file-name" id="file-name">No file chosen</span>
+                    </div>
+                    <small style="color: #a0a0a0; display: block; margin-top: 5px;">
+                        Recommended size: 400x400 pixels. Maximum file size: 2MB. Supported formats: JPEG, PNG, GIF.
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" th:field="*{location}" placeholder="City, State or Country">
+                </div>
+                
+                <div class="form-group">
+                    <label for="title">Professional Title</label>
+                    <input type="text" id="title" name="title" th:field="*{title}" placeholder="e.g. Senior Frontend Developer, Software Engineer">
+                </div>
+                
+                <div class="form-group">
+                    <label>Employment Status</label>
+                    <div class="radio-group" style="display: flex; gap: 20px; margin-top: 10px;">
+                        <div style="display: flex; align-items: center;">
+                            <input type="radio" id="statusEmployed" name="employmentStatus" value="EMPLOYED" th:field="*{employmentStatus}">
+                            <label for="statusEmployed" style="margin-left: 5px; font-weight: normal;">Currently Employed</label>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <input type="radio" id="statusLooking" name="employmentStatus" value="LOOKING_FOR_WORK" th:field="*{employmentStatus}">
+                            <label for="statusLooking" style="margin-left: 5px; font-weight: normal;">Looking for Work</label>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <input type="radio" id="statusOpen" name="employmentStatus" value="OPEN_TO_OPPORTUNITIES" th:field="*{employmentStatus}">
+                            <label for="statusOpen" style="margin-left: 5px; font-weight: normal;">Open to Opportunities</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group employer-container" id="employerContainer" th:style="${seeker.employmentStatus != null && seeker.employmentStatus.name() == 'EMPLOYED' ? '' : 'display: none;'}">
+                    <label for="currentEmployer">Current Employer</label>
+                    <input type="text" id="currentEmployer" name="currentEmployer" th:field="*{currentEmployer}" placeholder="e.g. Google, Microsoft, etc.">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="linkedinUrl">LinkedIn Profile</label>
+                        <input type="url" id="linkedinUrl" name="linkedinUrl" th:field="*{linkedinUrl}" placeholder="https://linkedin.com/in/yourusername">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="githubUrl">GitHub Profile</label>
+                        <input type="url" id="githubUrl" name="githubUrl" th:field="*{githubUrl}" placeholder="https://github.com/yourusername">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="websiteUrl">Personal Website/Portfolio</label>
+                    <input type="url" id="websiteUrl" name="websiteUrl" th:field="*{websiteUrl}" placeholder="https://yourportfolio.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Resume/CV</label>
+                    
+                    <!-- Show current resume if available -->
+                    <div class="current-resume" th:if="${seeker.resume != null && !seeker.resume.isEmpty()}" style="margin-bottom: 10px;">
+                        <div class="current-file-info" style="display: flex; align-items: center; background-color: rgba(40, 40, 60, 0.6); padding: 10px; border-radius: 6px;">
+                            <span style="margin-right: 10px;">📄</span>
+                            <div>
+                                <div style="font-weight: 500;" th:text="${seeker.resume}">Current resume</div>
+                                <a th:href="@{'/uploads/' + ${seeker.resume}}" target="_blank" style="color: #8a2be2; font-size: 14px;">View current resume</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- File upload field -->
+                    <div class="file-upload">
+                        <label for="resumeFile">Upload a new resume</label>
+                        <input type="file" id="resumeFile" name="resumeFile" accept=".pdf,.doc,.docx" onchange="updateResumeFileName(this)">
+                        <span class="file-name" id="resume-file-name">No file chosen</span>
+                    </div>
+                    <small style="color: #a0a0a0; display: block; margin-top: 5px;">
+                        Accepted formats: PDF, DOC, DOCX. Maximum file size: 5MB. This resume will be shared with recruiters when you apply for jobs.
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="about">About Me</label>
+                    <textarea id="about" name="about" th:text="${seeker.about}" placeholder="Tell employers about yourself, your experience, skills, and career goals..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="/dashboard/seeker" class="btn-secondary">Cancel</a>
+                    <button type="submit" class="btn-primary">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function updateFileName(input) {
+            var fileName = input.value.split('\\').pop();
+            document.getElementById('file-name').textContent = fileName || "No file chosen";
+        }
+        
+        function updateResumeFileName(input) {
+            const fileName = input.files.length > 0 ? input.files[0].name : 'No file chosen';
+            document.getElementById('resume-file-name').textContent = fileName;
+        }
+        
+        // Add event listeners for employment status radio buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusRadios = document.querySelectorAll('input[name="employmentStatus"]');
+            const employerContainer = document.getElementById('employerContainer');
+            
+            // Add change event listeners to all radio buttons
+            statusRadios.forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    // Show employer field only when "Currently Employed" is selected
+                    if (this.value === 'EMPLOYED') {
+                        employerContainer.style.display = 'block';
+                    } else {
+                        employerContainer.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

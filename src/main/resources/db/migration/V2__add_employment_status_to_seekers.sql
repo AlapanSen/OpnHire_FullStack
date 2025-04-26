@@ -1,0 +1,5 @@
+ALTER TABLE seekers 
+ADD COLUMN employment_status VARCHAR(50) DEFAULT 'LOOKING_FOR_WORK',
+ADD COLUMN current_employer VARCHAR(255); 
+ADD COLUMN employment_status VARCHAR(50) DEFAULT 'LOOKING_FOR_WORK',
+ADD COLUMN current_employer VARCHAR(255); 

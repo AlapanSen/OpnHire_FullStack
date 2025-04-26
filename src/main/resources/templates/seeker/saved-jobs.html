@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Jobs - OpenHire</title>
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #1e1e2d;
+            --body-bg: #121212;
+            --sidebar-bg: #1a1a25;
+            --header-bg: #121218;
+            --accent-color: #ff69b4;
+            --border-radius: 8px;
+            --sidebar-width: 220px;
+            --header-height: 60px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .navigation {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .nav-link {
+            color: #a0a0a0;
+            text-decoration: none;
+            padding: 8px 15px;
+            margin-right: 5px;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(138, 43, 226, 0.1);
+            color: white;
+        }
+        
+        .nav-link.active {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: white;
+        }
+        
+        .page-header {
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .alert {
+            padding: 10px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+        }
+        
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+        
+        .alert-error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+        
+        .saved-jobs-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .job-card {
+            background-color: rgba(40, 40, 60, 0.6);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            position: relative;
+            transition: transform 0.2s;
+        }
+        
+        .job-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .company-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            background: linear-gradient(145deg, #8a2be2, #ff69b4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .company-logo img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .bookmark-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .job-title {
+            margin: 10px 0 5px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .company-name {
+            color: #e1e1e1;
+            font-size: 14px;
+            margin: 0 0 5px;
+        }
+        
+        .job-location {
+            color: #a0a0a0;
+            font-size: 12px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .tag {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: var(--primary-color);
+            border-radius: 15px;
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+        
+        .job-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            color: #a0a0a0;
+            font-size: 12px;
+        }
+        
+        .salary {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            color: #4caf50;
+        }
+        
+        .posted-time {
+            display: flex;
+            align-items: center;
+        }
+        
+        .btn-apply {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+        
+        .no-saved-jobs {
+            text-align: center;
+            padding: 40px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+        }
+        
+        .no-saved-jobs h3 {
+            margin-bottom: 10px;
+            color: #e1e1e1;
+        }
+        
+        .no-saved-jobs p {
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+        
+        .btn-browse {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="/dashboard/seeker" class="nav-link">Dashboard</a>
+            <a href="/seeker-profile" class="nav-link">My Profile</a>
+            <a href="/saved-jobs" class="nav-link active">Saved Jobs</a>
+            <a href="/applications" class="nav-link">My Applications</a>
+            <a href="/logout" class="nav-link">Logout</a>
+        </div>
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Saved Jobs</h1>
+            <p>Jobs you've bookmarked for later</p>
+        </div>
+        
+        <!-- Success/Error Messages -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        
+        <!-- Saved Jobs Container -->
+        <div th:if="${savedJobs != null && !savedJobs.isEmpty()}" class="saved-jobs-container">
+            <!-- Job Card (repeated for each saved job) -->
+            <div class="job-card" th:each="savedJob : ${savedJobs}">
+                <div class="job-header">
+                    <!-- Display company logo if available -->
+                    <div class="company-logo">
+                        <img th:if="${savedJob.job.recruiter.companyLogo != null && !savedJob.job.recruiter.companyLogo.isEmpty()}" 
+                             th:src="@{'/uploads/' + ${savedJob.job.recruiter.companyLogo}}" 
+                             alt="Company Logo">
+                        <span th:if="${savedJob.job.recruiter.companyLogo == null || savedJob.job.recruiter.companyLogo.isEmpty()}" 
+                              th:text="${savedJob.job.recruiter.company != null && !savedJob.job.recruiter.company.isEmpty() ? savedJob.job.recruiter.company.substring(0, 1).toUpperCase() : 'C'}">G</span>
+                    </div>
+                    <button class="bookmark-btn" th:attr="data-job-id=${savedJob.job.id}" onclick="toggleBookmark(this)">🔖</button>
+                </div>
+                <h3 class="job-title" th:text="${savedJob.job.title}">Senior Frontend Developer</h3>
+                <p class="company-name" th:text="${savedJob.job.recruiter.company}">Google</p>
+                <p class="job-location">📍 <span th:text="${savedJob.job.location}">Mountain View, CA</span></p>
+                
+                <div class="tags-container">
+                    <span class="tag" th:each="skill : ${#strings.arraySplit(savedJob.job.skillsRequired, ',')}" th:text="${skill}">React</span>
+                </div>
+                
+                <div class="job-details">
+                    <div class="salary" th:text="${savedJob.job.salary != null && !savedJob.job.salary.startsWith('$') ? '$' + savedJob.job.salary : savedJob.job.salary}">$120K - $160K</div>
+                    <div class="posted-time" th:text="${'Posted ' + #temporals.format(savedJob.job.postingDate, 'MMM dd, yyyy')}">Posted 2 days ago</div>
+                </div>
+                
+                <a th:href="${'/jobs/' + savedJob.job.id}" class="btn-apply">View Job</a>
+            </div>
+        </div>
+        
+        <!-- No Saved Jobs Message -->
+        <div th:if="${savedJobs == null || savedJobs.isEmpty()}" class="no-saved-jobs">
+            <h3>You haven't saved any jobs yet</h3>
+            <p>Browse jobs and click the bookmark icon to save them for later.</p>
+            <a href="/dashboard/seeker" class="btn-browse">Browse Jobs</a>
+        </div>
+    </div>
+    
+    <script>
+        function toggleBookmark(button) {
+            const jobId = button.getAttribute('data-job-id');
+            
+            // Send request to server
+            fetch(`/jobs/${jobId}/save`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.saved) {
+                    // Remove the job card if it was unsaved
+                    button.closest('.job-card').remove();
+                    
+                    // Check if there are no more saved jobs
+                    if (document.querySelectorAll('.job-card').length === 0) {
+                        location.reload(); // Reload to show the no saved jobs message
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html> 

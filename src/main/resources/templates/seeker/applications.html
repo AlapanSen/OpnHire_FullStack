@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applications</title>
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #1e1e2d;
+            --body-bg: #121212;
+            --sidebar-bg: #1a1a25;
+            --header-bg: #121218;
+            --accent-color: #ff69b4;
+            --border-radius: 8px;
+            --success-color: #4caf50;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --header-height: 60px;
+            --sidebar-width: 220px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+        }
+        
+        .page-title {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title h1 {
+            font-size: 24px;
+        }
+        
+        .applications-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .application-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .job-company-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--border-radius);
+            background: linear-gradient(145deg, #8a2be2, #ff69b4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .job-title-company h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .company-name {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+        
+        .application-status {
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .status-applied {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+        
+        .status-review {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+        
+        .status-interview {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .status-rejected {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .status-accepted {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .application-details {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+        
+        .detail-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            color: #a0a0a0;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+        }
+        
+        .application-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid #a0a0a0;
+            color: #fff;
+        }
+        
+        .btn-danger {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 0;
+            color: #a0a0a0;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .alert-error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Success/Error Messages -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        
+        <div class="page-title">
+            <h1>My Applications</h1>
+            <a href="/dashboard/seeker" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+        
+        <!-- Applications List -->
+        <div class="applications-container" th:if="${applications != null && !applications.isEmpty()}">
+            <!-- Application Card - repeat for each application -->
+            <div class="application-card" th:each="jobApplication : ${applications}">
+                <div class="application-header">
+                    <div class="job-company-info">
+                        <div class="company-logo" th:if="${jobApplication.job.recruiter.companyLogo == null || jobApplication.job.recruiter.companyLogo.isEmpty()}" 
+                             th:text="${jobApplication.job.recruiter.company != null && !jobApplication.job.recruiter.company.isEmpty() ? jobApplication.job.recruiter.company.substring(0, 1).toUpperCase() : 'C'}">G</div>
+                        <div class="company-logo" th:if="${jobApplication.job.recruiter.companyLogo != null && !jobApplication.job.recruiter.companyLogo.isEmpty()}">
+                            <img th:src="@{'/uploads/' + ${jobApplication.job.recruiter.companyLogo}}" alt="Company Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--border-radius);">
+                        </div>
+                        
+                        <div class="job-title-company">
+                            <h3 th:text="${jobApplication.job.title}">Senior Frontend Developer</h3>
+                            <div class="company-name" th:text="${jobApplication.job.recruiter.company}">Google</div>
+                        </div>
+                    </div>
+                    
+                    <div class="application-status" 
+                         th:classappend="${'status-' + jobApplication.status.toString().toLowerCase()}"
+                         th:text="${jobApplication.status.toString()}">
+                        APPLIED
+                    </div>
+                </div>
+                
+                <div class="application-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Location</div>
+                        <div class="detail-value" th:text="${jobApplication.job.location}">Mountain View, CA</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Job Type</div>
+                        <div class="detail-value" th:text="${jobApplication.job.jobType}">Full-time</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Salary Range</div>
+                        <div class="detail-value" th:text="${jobApplication.job.salary != null && !jobApplication.job.salary.startsWith('$') ? '$' + jobApplication.job.salary : jobApplication.job.salary}">$120K - $160K</div>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-label">Applied On</div>
+                        <div class="detail-value" th:text="${#temporals.format(jobApplication.appliedDate, 'MMM dd, yyyy')}">Apr 15, 2023</div>
+                    </div>
+                </div>
+                
+                <div class="application-actions">
+                    <a th:href="@{/jobs/{id}(id=${jobApplication.job.id})}" class="btn btn-primary">View Job</a>
+                    
+                    <!-- Only show cancel button if status is APPLIED or REVIEW -->
+                    <button th:if="${jobApplication.status == T(entity.JobApplication.ApplicationStatus).APPLIED || 
+                                  jobApplication.status == T(entity.JobApplication.ApplicationStatus).REVIEW}"
+                            class="btn btn-danger"
+                            th:onclick="'cancelApplication(' + ${jobApplication.id} + ')'">
+                        Cancel Application
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State - show when no applications -->
+        <div class="empty-state" th:if="${applications == null || applications.isEmpty()}">
+            <div class="empty-state-icon">🔍</div>
+            <h2>No Applications Yet</h2>
+            <p>You haven't applied to any jobs yet. Start browsing and applying to jobs!</p>
+            <a href="/dashboard/seeker" class="btn btn-primary" style="margin-top: 20px;">Browse Jobs</a>
+        </div>
+    </div>
+    
+    <script>
+        function cancelApplication(applicationId) {
+            if (confirm('Are you sure you want to cancel this application?')) {
+                fetch(`/applications/${applicationId}/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to show updated list
+                        window.location.reload();
+                    } else {
+                        alert(data.message || 'Error cancelling application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while cancelling the application');
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

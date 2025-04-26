@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - OpenHire</title>
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #1e1e2d;
+            --body-bg: #121212;
+            --sidebar-bg: #1a1a25;
+            --header-bg: #121218;
+            --accent-color: #ff69b4;
+            --border-radius: 8px;
+            --sidebar-width: 220px;
+            --header-height: 60px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #333;
+            color: white;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .notification-item {
+            display: flex;
+            padding: 15px;
+            background-color: rgba(40, 40, 60, 0.6);
+            border-radius: var(--border-radius);
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .notification-item.unread {
+            background-color: rgba(138, 43, 226, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .notification-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(138, 43, 226, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-text {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .notification-time {
+            color: #a0a0a0;
+            font-size: 14px;
+            margin: 5px 0 0;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background-color: transparent;
+            border: none;
+            color: #a0a0a0;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .mark-read-btn {
+            color: #4caf50;
+        }
+        
+        .delete-btn {
+            color: #f44336;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 0;
+            color: #a0a0a0;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .alert-error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Success/Error Messages -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        
+        <div class="page-title">
+            <h1>Notifications</h1>
+            <div>
+                <button id="mark-all-read-btn" class="btn btn-secondary">Mark All as Read</button>
+                <a href="/dashboard/seeker" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <!-- Notifications List -->
+            <div class="notification-list">
+                <!-- Empty state when no notifications -->
+                <div th:if="${notifications == null || #lists.isEmpty(notifications)}" class="empty-state">
+                    <div class="empty-state-icon">🔔</div>
+                    <h3>No Notifications Yet</h3>
+                    <p>You don't have any notifications at the moment.</p>
+                </div>
+                
+                <!-- Notification items -->
+                <div th:each="notification : ${notifications}" th:id="'notification-' + ${notification.id}" class="notification-item" th:classappend="${!notification.read ? 'unread' : ''}">
+                    <div class="notification-icon" th:text="${notification.icon}">📢</div>
+                    <div class="notification-content">
+                        <p class="notification-text" th:text="${notification.message}">
+                            Notification message here
+                        </p>
+                        <p class="notification-time" th:text="${#temporals.format(notification.createdAt, 'dd MMM yyyy, HH:mm')}">
+                            Date and time
+                        </p>
+                    </div>
+                    <div class="notification-actions">
+                        <button th:if="${!notification.read}" 
+                                th:attr="data-id=${notification.id}" 
+                                class="action-btn mark-read-btn" 
+                                onclick="markAsRead(this)">✓</button>
+                        <button th:attr="data-id=${notification.id}" 
+                                class="action-btn delete-btn" 
+                                onclick="deleteNotification(this)">🗑️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function markAsRead(button) {
+            const notificationId = button.getAttribute('data-id');
+            const notificationItem = document.getElementById('notification-' + notificationId);
+            
+            fetch(`/notifications/${notificationId}/mark-read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove unread class
+                    notificationItem.classList.remove('unread');
+                    // Remove mark as read button
+                    button.remove();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        
+        function deleteNotification(button) {
+            const notificationId = button.getAttribute('data-id');
+            const notificationItem = document.getElementById('notification-' + notificationId);
+            
+            if (confirm('Are you sure you want to delete this notification?')) {
+                fetch(`/notifications/${notificationId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove notification from DOM
+                        notificationItem.remove();
+                        
+                        // If no more notifications, show empty state
+                        const notificationItems = document.querySelectorAll('.notification-item');
+                        if (notificationItems.length === 0) {
+                            const emptyState = document.createElement('div');
+                            emptyState.className = 'empty-state';
+                            emptyState.innerHTML = `
+                                <div class="empty-state-icon">🔔</div>
+                                <h3>No Notifications Yet</h3>
+                                <p>You don't have any notifications at the moment.</p>
+                            `;
+                            document.querySelector('.notification-list').appendChild(emptyState);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+        
+        // Mark all notifications as read
+        document.getElementById('mark-all-read-btn').addEventListener('click', function() {
+            fetch('/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove unread class from all notifications
+                    document.querySelectorAll('.notification-item.unread').forEach(item => {
+                        item.classList.remove('unread');
+                    });
+                    
+                    // Remove all mark as read buttons
+                    document.querySelectorAll('.mark-read-btn').forEach(btn => {
+                        btn.remove();
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html> 

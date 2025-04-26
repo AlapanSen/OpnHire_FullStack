@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - OpnHire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #f44336;
+            margin-bottom: 20px;
+        }
+        
+        .error-card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .error-details {
+            background-color: rgba(244, 67, 54, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: left;
+            overflow-x: auto;
+        }
+        
+        .error-message {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .timestamp {
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+        
+        .back-btn {
+            background: linear-gradient(90deg, #ff69b4, #8a2be2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        
+        .stack-trace {
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Oops! Something went wrong</h1>
+        
+        <div class="error-card">
+            <div class="timestamp" th:text="${timestamp}">Timestamp</div>
+            
+            <div class="error-message" th:text="${message}">Error Message</div>
+            
+            <div th:if="${status}">
+                <p>Status: <span th:text="${status}">Status</span></p>
+                <p>Error: <span th:text="${error}">Error</span></p>
+            </div>
+            
+            <div class="error-details" th:if="${exception}">
+                <h3>Error Details:</h3>
+                <div class="stack-trace" th:text="${exception}">Exception</div>
+            </div>
+            
+            <a href="javascript:history.back()" class="back-btn">Go Back</a>
+            <a href="/" class="back-btn">Home</a>
+        </div>
+    </div>
+</body>
+</html> 

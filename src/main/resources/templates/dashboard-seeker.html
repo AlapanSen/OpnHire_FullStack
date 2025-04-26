@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Seeker Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #1e1e2d;
+            --body-bg: #121212;
+            --sidebar-bg: #1a1a25;
+            --header-bg: #121218;
+            --accent-color: #ff69b4;
+            --border-radius: 8px;
+            --sidebar-width: 220px;
+            --header-height: 60px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            z-index: 100;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            height: var(--header-height);
+        }
+        
+        .sidebar-user {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        
+        .nav-list {
+            list-style-type: none;
+            padding: 15px 0;
+        }
+        
+        .nav-item {
+            padding: 10px 15px;
+            margin: 5px 10px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: white;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Header styles */
+        .header {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: var(--header-bg);
+            z-index: 99;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+        
+        .brand-logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            margin-right: 20px;
+        }
+        
+        .brand-logo span {
+            color: var(--accent-color);
+        }
+        
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+            margin-right: 20px;
+        }
+        
+        .search-container form {
+            display: flex;
+            width: 100%;
+            align-items: center;
+        }
+        
+        .search-input {
+            width: 100%;
+            background-color: #1e1e2d;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px 15px;
+            padding-left: 40px;
+            border-radius: 25px;
+            outline: none;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0a0a0;
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            border: none;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #1e1e2d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-left: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent-color);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .header-user {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: var(--border-radius);
+            margin-left: 15px;
+        }
+        
+        .header-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+        }
+        
+        /* Main content styles */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .welcome-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .welcome-text h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .welcome-text h1 span {
+            color: var(--accent-color);
+        }
+        
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .stat-card {
+            background-color: rgba(40, 40, 60, 0.6);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: center;
+            width: 120px;
+        }
+        
+        .stat-card .icon {
+            background-color: rgba(138, 43, 226, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+        
+        .stat-number {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #2a2a3a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            border-radius: 4px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .section-title {
+            color: #e1e1e1;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .view-all {
+            color: #a0a0a0;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .view-all:hover {
+            color: var(--accent-color);
+        }
+        
+        .jobs-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .job-card {
+            background-color: rgba(40, 40, 60, 0.6);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            position: relative;
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .company-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .bookmark-btn {
+            background: none;
+            border: none;
+            color: #a0a0a0;
+            cursor: pointer;
+        }
+        
+        .job-title {
+            margin: 10px 0 5px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .company-name {
+            color: #e1e1e1;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .job-location {
+            color: #a0a0a0;
+            font-size: 12px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .tag {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: var(--primary-color);
+            border-radius: 15px;
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+        
+        .job-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            color: #a0a0a0;
+            font-size: 12px;
+        }
+        
+        .salary {
+            display: flex;
+            align-items: center;
+        }
+        
+        .posted-time {
+            display: flex;
+            align-items: center;
+        }
+        
+        .btn-apply {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+        
+        .application-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .application-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: rgba(40, 40, 60, 0.6);
+            border-radius: var(--border-radius);
+        }
+        
+        .application-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .application-info h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .application-info p {
+            margin: 5px 0 0;
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+        
+        .application-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            font-size: 12px;
+        }
+        
+        .status-applied {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+        
+        .status-review {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+        
+        .status-interview {
+            background-color: rgba(156, 39, 176, 0.2);
+            color: #9c27b0;
+        }
+        
+        .status-rejected {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .status-accepted {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .application-date {
+            color: #a0a0a0;
+            font-size: 12px;
+        }
+        
+        .skills-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .skill-container {
+            margin-bottom: 15px;
+        }
+        
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .skill-name {
+            font-size: 14px;
+        }
+        
+        .skill-level {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        
+        .skill-bar {
+            height: 6px;
+            background-color: #2a2a3a;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .skill-progress {
+            height: 100%;
+            border-radius: 3px;
+        }
+        
+        .expert {
+            background-color: #4caf50;
+        }
+        
+        .advanced {
+            background-color: #2196f3;
+        }
+        
+        .intermediate {
+            background-color: #9c27b0;
+        }
+        
+        .btn-secondary {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .company-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .company-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background-color: rgba(40, 40, 60, 0.6);
+            border-radius: var(--border-radius);
+        }
+        
+        .company-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .company-info h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .company-info p {
+            margin: 5px 0 0;
+            color: #a0a0a0;
+            font-size: 12px;
+        }
+        
+        .company-stats {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+            color: #a0a0a0;
+            font-size: 12px;
+        }
+        
+        .btn-follow {
+            background-color: transparent;
+            border: 1px solid #a0a0a0;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .notification-item {
+            display: flex;
+            padding: 12px;
+            background-color: rgba(40, 40, 60, 0.6);
+            border-radius: var(--border-radius);
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .notification-item.unread {
+            background-color: rgba(138, 43, 226, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(138, 43, 226, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-text {
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .notification-time {
+            color: #a0a0a0;
+            font-size: 12px;
+            margin: 5px 0 0;
+        }
+        
+        .notification-dismiss {
+            color: #a0a0a0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-user">
+            <div class="user-avatar" th:if="${seeker != null && seeker.profilePic != null && !seeker.profilePic.isEmpty()}">
+                <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </div>
+            <div class="user-avatar" th:if="${seeker == null || seeker.profilePic == null || seeker.profilePic.isEmpty()}">
+                <span th:text="${session.user != null ? session.user.firstName.substring(0,1) : 'U'}">A</span>
+            </div>
+            <div class="user-info">
+                <div class="user-name" th:text="${session.user != null ? session.user.firstName + ' ' + session.user.lastName : 'User'}">Abhirup Karmakar</div>
+                <div class="user-role" th:if="${seeker != null && seeker.title != null && !seeker.title.isEmpty()}" th:text="${seeker.title}">Senior Frontend Developer</div>
+                <div class="user-role" th:if="${seeker == null || seeker.title == null || seeker.title.isEmpty()}" th:text="${#strings.capitalize(#strings.toLowerCase(session.user.role))}">Seeker</div>
+            </div>
+        </div>
+        
+        <ul class="nav-list">
+            <a href="/dashboard/seeker" class="nav-item active">
+                <span class="nav-icon">🏠</span> Dashboard
+            </a>
+            <a href="/jobs" class="nav-item">
+                <span class="nav-icon">💼</span> Jobs
+            </a>
+            <a href="/applications" class="nav-item">
+                <span class="nav-icon">📝</span> Applications
+            </a>
+            <a href="/saved-jobs" class="nav-item">
+                <span class="nav-icon">🔖</span> Saved Jobs
+            </a>
+            <a href="/preferences" class="nav-item">
+                <span class="nav-icon">🎯</span> Job Preferences
+            </a>
+            <a href="/notifications" class="nav-item">
+                <span class="nav-icon">🔔</span> Notifications
+            </a>
+            <a href="/seeker-profile" class="nav-item">
+                <span class="nav-icon">👤</span> Profile
+            </a>
+            <a href="/companies" class="nav-item">
+                <span class="nav-icon">🏢</span> Companies
+            </a>
+            <a href="/chat" class="nav-item">
+                <span class="nav-icon">💬</span> Messages
+            </a>
+            <a href="/resume-analyzer" class="nav-item">
+                <span class="nav-icon">📊</span> Resume Analyzer
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">⚙️</span> Settings
+            </a>
+        </ul>
+    </div>
+    
+    <!-- Header with Search -->
+    <header class="header">
+        <div class="brand-logo">Opn<span>Hire</span></div>
+        <div class="search-container">
+            <form action="/search" method="GET">
+                <span class="search-icon">🔍</span>
+                <input type="text" name="query" class="search-input" placeholder="Search for jobs, companies, skills...">
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+        </div>
+        <div class="header-actions">
+            <div class="header-btn">
+                <span>🔔</span>
+                <span class="notification-badge" th:if="${unreadNotificationsCount > 0}" th:text="${unreadNotificationsCount}">5</span>
+            </div>
+            <div class="header-btn">
+                <span>💬</span>
+                <span class="notification-badge">2</span>
+            </div>
+            <div class="header-user" style="position: relative;">
+                <div class="header-avatar" th:if="${seeker != null && seeker.profilePic != null && !seeker.profilePic.isEmpty()}">
+                    <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                </div>
+                <div class="header-avatar" th:if="${seeker == null || seeker.profilePic == null || seeker.profilePic.isEmpty()}">
+                    <span th:text="${session.user != null ? session.user.firstName.substring(0,1) : 'U'}">A</span>
+                </div>
+                <span>▼</span>
+                
+                <!-- User Dropdown Menu -->
+                <div class="user-dropdown" style="display: none; position: absolute; top: 45px; right: 0; background-color: var(--card-bg); border-radius: var(--border-radius); box-shadow: 0 4px 8px rgba(0,0,0,0.2); width: 160px; z-index: 100;">
+                    <a href="/seeker-profile" style="display: block; padding: 10px 15px; color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1);">View Profile</a>
+                    <a href="/preferences" style="display: block; padding: 10px 15px; color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1);">Preferences</a>
+                    <a href="/logout" style="display: block; padding: 10px 15px; color: white; text-decoration: none;">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Welcome Section -->
+            <div class="card">
+                <div class="welcome-section">
+                    <div class="welcome-text">
+                        <h1>Welcome back, <span th:text="${session.user != null ? session.user.firstName : 'User'}">Bikram</span></h1>
+                        <p>Your profile has been viewed by <strong th:text="${weeklyRecruiterViews != null ? weeklyRecruiterViews : '0'}">23</strong> recruiters in the past week.</p>
+                        
+                        <div class="progress-container">
+                            <div class="progress-label">
+                                <span>Profile Completion</span>
+                                <span th:text="${profileCompletionPercentage != null ? profileCompletionPercentage + '%' : '0%'}">85%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" th:style="'width: ' + ${profileCompletionPercentage != null ? profileCompletionPercentage : '0'} + '%;'"></div>
+                            </div>
+                        </div>
+                        
+                        <a href="/seeker-profile" class="btn-primary">Complete Profile</a>
+                    </div>
+                    
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="icon">👁️</div>
+                            <div class="stat-number" th:text="${profileViews != null ? profileViews : '0'}">127</div>
+                            <div class="stat-label">Profile Views</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon">🔔</div>
+                            <div class="stat-number" th:text="${applicationCount != null ? applicationCount : '0'}">12</div>
+                            <div class="stat-label">Applications</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon">❤️</div>
+                            <div class="stat-number" th:text="${savedJobsCount != null ? savedJobsCount : '0'}">8</div>
+                            <div class="stat-label">Saved Jobs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommended Jobs Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h2 class="section-title">Recommended Jobs</h2>
+                    <a href="/jobs" class="view-all">View All →</a>
+                </div>
+                <div class="jobs-container">
+                    <!-- Display dynamic jobs from recommendedJobs list -->
+                    <th:block th:if="${recommendedJobs != null and not #lists.isEmpty(recommendedJobs)}">
+                        <div th:each="job : ${recommendedJobs}" class="job-card">
+                            <div class="job-header">
+                                <div class="company-logo" th:text="${job.company != null ? job.company.charAt(0) : 'C'}">C</div>
+                                <button class="bookmark-btn" 
+                                        th:attr="data-job-id=${job.id}" 
+                                        th:classappend="${savedJobIds != null && savedJobIds.contains(job.id) ? 'saved' : ''}"
+                                        th:text="${savedJobIds != null && savedJobIds.contains(job.id) ? '📌' : '🔖'}"
+                                        onclick="saveJob(this); return false;">🔖</button>
+                            </div>
+                            <a th:href="@{'/jobs/' + ${job.id}}" class="job-link" style="text-decoration: none; color: inherit; display: block;">
+                                <h3 class="job-title" th:text="${job.title}">Job Title</h3>
+                                <p class="company-name" th:text="${job.company}">Company</p>
+                                <p class="job-location" th:text="'📍 ' + ${job.location}">📍 Location</p>
+                                <div class="tags-container">
+                                    <span th:if="${job.skillsRequired != null}" class="tag" th:each="skill : ${#strings.arraySplit(job.skillsRequired, ',')}" th:text="${#strings.trim(skill)}">Skill</span>
+                                </div>
+                                <div class="job-details">
+                                    <div class="salary" th:text="${job.salary != null ? job.salary : 'Salary not specified'}">$120K - $160K</div>
+                                    <div class="posted-time" th:text="${'Posted on ' + #temporals.format(job.postingDate, 'dd MMM yyyy')}">Posted 2 days ago</div>
+                                </div>
+                                <button class="btn-apply">View Job</button>
+                            </a>
+                        </div>
+                    </th:block>
+                    
+                    <!-- Display message when no jobs are available -->
+                    <div th:if="${recommendedJobs == null || #lists.isEmpty(recommendedJobs)}" class="no-jobs-message" style="text-align: center; padding: 20px;">
+                        <p>No recommended jobs available at the moment.</p>
+                        <a href="/jobs" class="btn-primary" style="display: inline-block; margin-top: 10px;">Explore All Jobs</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Applications Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Applications</h2>
+                    <a href="/applications" class="view-all">View All →</a>
+                </div>
+                <div class="application-list">
+                    <!-- Display message when no applications are available -->
+                    <div th:if="${recentApplications == null || #lists.isEmpty(recentApplications)}" class="no-applications-message" style="text-align: center; padding: 20px;">
+                        <p>You haven't applied to any jobs yet.</p>
+                        <a href="/jobs" class="btn-primary" style="display: inline-block; margin-top: 10px;">Explore Jobs</a>
+                    </div>
+                    
+                    <!-- Display dynamic applications from recentApplications list -->
+                    <div th:each="jobApp : ${recentApplications}" class="application-item">
+                        <div class="application-details">
+                            <div class="company-logo" th:text="${jobApp.job.company != null ? jobApp.job.company.charAt(0) : 'C'}">A</div>
+                            <div class="application-info">
+                                <h4 th:text="${jobApp.job.title}">Frontend Developer</h4>
+                                <p th:text="${jobApp.job.company}">Amazon</p>
+                            </div>
+                        </div>
+                        <div class="application-status">
+                            <span class="status-badge"
+                                  th:classappend="${'status-' + jobApp.status.toString().toLowerCase()}"
+                                  th:text="${jobApp.status}">In Review</span>
+                            <span class="application-date" th:text="${'Applied on ' + #temporals.format(jobApp.appliedDate, 'MMM dd, yyyy')}">Applied on Mar 22, 2023</span>
+                            <a th:href="@{'/jobs/' + ${jobApp.job.id}}" class="bookmark-btn" style="text-decoration: none;">👁️</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Notifications Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Notifications</h2>
+                    <a href="/notifications" class="view-all">View All →</a>
+                </div>
+                <div class="notification-list">
+                    <!-- Display message when no notifications are available -->
+                    <div th:if="${recentNotifications == null || #lists.isEmpty(recentNotifications)}" class="no-notifications-message" style="text-align: center; padding: 20px;">
+                        <p>You don't have any notifications yet.</p>
+                    </div>
+                    
+                    <!-- Display dynamic notifications from recentNotifications list -->
+                    <div th:each="notification : ${recentNotifications}" class="notification-item" th:classappend="${!notification.read ? 'unread' : ''}">
+                        <div class="notification-icon" th:text="${notification.icon}">📢</div>
+                        <div class="notification-content">
+                            <p class="notification-text" th:text="${notification.message}">
+                                <strong>Google</strong> has posted a new job that matches your skills: Senior Frontend Developer
+                            </p>
+                            <p class="notification-time" th:text="${#temporals.format(notification.createdAt, 'dd MMM, HH:mm')}">2 hours ago</p>
+                        </div>
+                        <div class="notification-dismiss" th:attr="data-id=${notification.id}" onclick="markNotificationAsRead(this)">✓</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function saveJob(button) {
+            const jobId = button.getAttribute('data-job-id');
+            
+            fetch(`/saved-jobs/toggle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'jobId=' + jobId,
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update the bookmark icon based on saved state
+                if (data.saved) {
+                    button.textContent = '📌'; // Pinned/saved icon
+                    button.classList.add('saved');
+                } else {
+                    button.textContent = '🔖'; // Bookmark/unsaved icon
+                    button.classList.remove('saved');
+                }
+                
+                // Optionally update the saved jobs count in stats
+                const savedJobsCountElement = document.querySelector('.stat-number:nth-of-type(3)');
+                if (savedJobsCountElement) {
+                    let count = parseInt(savedJobsCountElement.textContent);
+                    savedJobsCountElement.textContent = data.saved ? count + 1 : Math.max(0, count - 1);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            
+            // Prevent any parent links from being followed
+            event.stopPropagation();
+        }
+        
+        function markNotificationAsRead(button) {
+            const notificationId = button.getAttribute('data-id');
+            const notificationItem = button.closest('.notification-item');
+            
+            fetch(`/notifications/${notificationId}/mark-read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove unread class
+                    notificationItem.classList.remove('unread');
+                    
+                    // Update unread count in header
+                    const badge = document.querySelector('.header-btn .notification-badge');
+                    if (badge) {
+                        const currentCount = parseInt(badge.textContent);
+                        if (currentCount > 1) {
+                            badge.textContent = currentCount - 1;
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const headerUser = document.querySelector('.header-user');
+            const dropdown = document.querySelector('.user-dropdown');
+            
+            headerUser.addEventListener('click', function(e) {
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                e.stopPropagation();
+            });
+            
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+        });
+    </script>
+</body>

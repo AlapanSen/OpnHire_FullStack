@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Successful</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .success-message {
+            background-color: #dff0d8;
+            border: 1px solid #d6e9c6;
+            color: #3c763d;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .role {
+            font-weight: bold;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        a:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<h2>Registration Successful!</h2>
+
+<div class="success-message">
+    <p>Thank you for registering with our platform.</p>
+    <p>Your account has been created successfully as a <span id="userRole" class="role"></span>.</p>
+</div>
+
+<a href="/login">Log in to your account</a>
+
+<script>
+    // Get role from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const role = urlParams.get('role');
+
+    // Display role name
+    let roleName = "";
+    if (role === "SEEKER") {
+        roleName = "Job Seeker";
+    } else if (role === "RECRUITER") {
+        roleName = "Recruiter";
+    } else if (role === "ADMIN") {
+        roleName = "Administrator";
+    } else {
+        roleName = "User";
+    }
+
+    document.getElementById('userRole').textContent = roleName;
+</script>
+</body>
+</html>

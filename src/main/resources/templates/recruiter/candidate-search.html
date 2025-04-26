@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Search - OpnHire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3 {
+            color: #e1e1e1;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #a0a0a0;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            color: #ffffff;
+        }
+        
+        .card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .search-header {
+            margin-bottom: 15px;
+        }
+        
+        .search-description {
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+        
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-size: 14px;
+            color: #e1e1e1;
+        }
+        
+        .input-field {
+            background-color: #2a2a3a;
+            border: 1px solid #444;
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #8a2be2;
+        }
+        
+        .search-btn {
+            background: linear-gradient(90deg, #ff69b4, #8a2be2);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .search-tips {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(138, 43, 226, 0.1);
+            border-radius: 8px;
+        }
+        
+        .search-tips h3 {
+            margin-top: 0;
+            font-size: 16px;
+        }
+        
+        .search-tips ul {
+            color: #a0a0a0;
+            padding-left: 20px;
+        }
+        
+        .search-tips li {
+            margin-bottom: 5px;
+        }
+        
+        .actions-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .action-btn {
+            background-color: transparent;
+            border: 1px solid #8a2be2;
+            color: #8a2be2;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(138, 43, 226, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/dashboard/recruiter" class="back-link">← Back to Dashboard</a>
+        
+        <h1>Candidate Search</h1>
+        
+        <div class="card">
+            <div class="search-container">
+                <div class="search-header">
+                    <h2>Find the Right Talent</h2>
+                    <p class="search-description">Search for candidates based on location, skills, or other keywords. Use multiple criteria to narrow down your results.</p>
+                </div>
+                
+                <form class="search-form" action="/candidates/results" method="get">
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" class="input-field" placeholder="City, state, or country">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="skill">Skills</label>
+                        <input type="text" id="skill" name="skill" class="input-field" placeholder="Java, Python, React, etc.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="keyword">Keyword</label>
+                        <input type="text" id="keyword" name="keyword" class="input-field" placeholder="Job title, qualifications, or any other keyword">
+                    </div>
+                    
+                    <button type="submit" class="search-btn">Search Candidates</button>
+                </form>
+                
+                <div class="search-tips">
+                    <h3>Search Tips</h3>
+                    <ul>
+                        <li>Search by location to find candidates in specific areas.</li>
+                        <li>Use skills search to find candidates with particular technical abilities.</li>
+                        <li>Use keywords to search across names, job titles, and descriptions.</li>
+                        <li>Combine multiple criteria for more specific results.</li>
+                        <li>Leave all fields empty to browse all candidates.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions-section">
+            <a href="/applications/review" class="action-btn">Review Applications</a>
+            <a href="/jobs/manage" class="action-btn">Manage Jobs</a>
+        </div>
+    </div>
+</body>
+</html> 

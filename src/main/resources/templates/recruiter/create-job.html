@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Job Listing - OpnHire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #e1e1e1;
+            margin-bottom: 20px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #2a2a3a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #ff69b4, #8a2be2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0a0;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+        
+        .nav-link {
+            color: #a0a0a0;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: #ffffff;
+        }
+        
+        .navigation {
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navigation">
+            <a href="/dashboard/recruiter" class="nav-link">Dashboard</a>
+            <a href="/jobs/manage" class="nav-link">Manage Jobs</a>
+            <a href="/company-profile" class="nav-link">Company Profile</a>
+            <a href="/logout" class="nav-link">Logout</a>
+        </div>
+    
+        <div class="page-header">
+            <h1>Create New Job Listing</h1>
+        </div>
+        
+        <!-- Error Messages -->
+        <div th:if="${error}" class="alert alert-error" th:text="${error}">An error occurred.</div>
+        
+        <!-- Job Creation Form -->
+        <div class="form-card">
+            <form th:action="@{/jobs/create}" method="post" th:object="${job}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="title" class="required">Job Title</label>
+                        <input type="text" id="title" name="title" th:field="*{title}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company" class="required">Company</label>
+                        <input type="text" id="company" name="company" th:field="*{company}" readonly 
+                               placeholder="Auto-filled from your company profile" required>
+                        <small style="color: #a0a0a0;">This is auto-filled from your <a href="/company-profile" style="color: #8a2be2;">company profile</a></small>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="location" class="required">Location</label>
+                        <input type="text" id="location" name="location" th:field="*{location}" 
+                               placeholder="City, State or Remote" required>
+                        <small style="color: #a0a0a0;">Default location from your <a href="/company-profile" style="color: #8a2be2;">company profile</a> (you can change it)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="jobType" class="required">Job Type</label>
+                        <select id="jobType" name="jobType" th:field="*{jobType}" required>
+                            <option value="">Select Job Type</option>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Temporary">Temporary</option>
+                            <option value="Internship">Internship</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="salary">Salary Range</label>
+                        <input type="text" id="salary" name="salary" th:field="*{salary}" 
+                               placeholder="e.g. $50,000 - $70,000 per year">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deadlineDate" class="required">Application Deadline</label>
+                        <input type="date" id="deadlineDate" name="deadlineDate" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="required">Job Description</label>
+                    <textarea id="description" name="description" th:field="*{description}" required
+                              placeholder="Describe the job responsibilities, requirements, and company culture"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="skillsRequired">Required Skills</label>
+                    <textarea id="skillsRequired" name="skillsRequired" th:field="*{skillsRequired}" 
+                              placeholder="e.g. Java, Spring Boot, MySQL, React"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="experienceRequired">Experience Required</label>
+                        <input type="text" id="experienceRequired" name="experienceRequired" th:field="*{experienceRequired}" 
+                               placeholder="e.g. 3+ years">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="educationRequired">Education Required</label>
+                        <input type="text" id="educationRequired" name="educationRequired" th:field="*{educationRequired}"
+                               placeholder="e.g. Bachelor's degree in Computer Science">
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="/jobs/manage" class="btn-secondary">Cancel</a>
+                    <button type="submit" class="btn-primary">Post Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

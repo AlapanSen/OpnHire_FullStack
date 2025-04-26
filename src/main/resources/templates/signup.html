@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        div {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<h2>User Registration</h2>
+
+<div class="error" id="error" style="display: none;"></div>
+
+<form action="/signup" method="post">
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+
+    <div>
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required>
+    </div>
+
+    <div>
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required>
+    </div>
+
+    <div>
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="tel" id="phoneNumber" name="phoneNumber" required>
+    </div>
+
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+
+    <div>
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
+    </div>
+
+    <div>
+        <label for="role">Role:</label>
+        <select id="role" name="role" required>
+            <option value="">Select a role</option>
+            <option value="SEEKER">Job Seeker</option>
+            <option value="RECRUITER">Recruiter</option>
+            <option value="ADMIN">Admin</option>
+        </select>
+    </div>
+
+    <div>
+        <button type="submit">Register</button>
+    </div>
+</form>
+
+<script>
+    // Show error message if present in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    if (error) {
+        const errorDiv = document.getElementById('error');
+        errorDiv.style.display = 'block';
+
+        switch (error) {
+            case 'passwordMismatch':
+                errorDiv.textContent = 'Passwords do not match. Please try again.';
+                break;
+            case 'emailExists':
+                errorDiv.textContent = 'This email is already registered. Please use a different email address.';
+                break;
+            case 'phoneExists':
+                errorDiv.textContent = 'This phone number is already registered. Please use a different phone number.';
+                break;
+            case 'firstNameExists':
+                errorDiv.textContent = 'This first name is already taken. Please use a different name or variant.';
+                break;
+            case 'lastNameExists':
+                errorDiv.textContent = 'This last name is already taken. Please use a different name or variant.';
+                break;
+            case 'duplicateEntry':
+                errorDiv.textContent = 'Some information you provided is already in use. Please check and try again.';
+                break;
+            case 'generalError':
+                errorDiv.textContent = 'An error occurred during registration. Please try again later.';
+                break;
+            default:
+                errorDiv.textContent = 'An error occurred: ' + error;
+        }
+    }
+</script>
+</body>
+</html>

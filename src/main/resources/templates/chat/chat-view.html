@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF tokens for security -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}" />
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}" />
+    <title>Messages - OpnHire</title>
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #f5f5f5;
+            --text-color: #f5f5f5;
+            --secondary-text: #a0a0a0;
+            --card-bg: #1a1a25;
+            --dark-bg: #13131a;
+            --body-bg: #121212;
+            --sidebar-bg: #1a1a25;
+            --header-bg: #121218;
+            --accent-color: #ff69b4;
+            --border-radius: 8px;
+            --sidebar-width: 220px;
+            --header-height: 60px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            z-index: 100;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            height: var(--header-height);
+        }
+
+        .sidebar-user {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+
+        .nav-list {
+            list-style-type: none;
+            padding: 15px 0;
+        }
+
+        .nav-item {
+            padding: 10px 15px;
+            margin: 5px 10px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: white;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .nav-icon {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main sidebar (navigation) */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--card-bg);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px 0;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        /* Content area */
+        .content-wrapper {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Chat layout */
+        .chat-container {
+            display: flex;
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            height: 100vh;
+        }
+        
+        /* Chat sidebar (conversation list) */
+        .chat-sidebar {
+            width: 280px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Chat main area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Conversation list */
+        .conversation-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 5px;
+        }
+        
+        .conversation-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .conversation-item.active {
+            background-color: rgba(138, 43, 226, 0.2);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #2a2a3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .conversation-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .conversation-name {
+            font-weight: 500;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .conversation-preview {
+            color: var(--secondary-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+        }
+        
+        .conversation-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-left: 10px;
+        }
+        
+        .conversation-time {
+            font-size: 12px;
+            color: var(--secondary-text);
+            margin-bottom: 5px;
+        }
+        
+        .conversation-unread {
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* Chat header */
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-title {
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        /* Message area */
+        .message-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background-color: rgba(42, 42, 58, 0.3);
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 24px;
+            word-wrap: break-word;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .message-outgoing {
+            background-color: var(--primary-color);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+            margin-left: 20px;
+        }
+        
+        .message-incoming {
+            background-color: #2a2a3a;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            margin-right: 20px;
+        }
+        
+        .message-sender {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .message-content {
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        
+        .message-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        
+        .message-attachment {
+            display: block;
+            margin-top: 10px;
+        }
+        
+        .message-attachment-link {
+            display: flex;
+            align-items: center;
+            color: #fff;
+            text-decoration: none;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .message-attachment-icon {
+            margin-right: 5px;
+            font-size: 1.2em;
+        }
+        
+        .message-attachment-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 200px;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            position: absolute;
+            bottom: -18px;
+            right: 5px;
+        }
+        
+        /* Message input area */
+        .message-input-container {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .message-input {
+            flex: 1;
+            background-color: #2a2a3a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 12px 15px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .message-actions {
+            display: flex;
+            margin-left: 10px;
+        }
+        
+        .action-button {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            color: white;
+            font-size: 18px;
+            margin-left: 8px;
+        }
+        
+        .attach-button {
+            background-color: #2a2a3a;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary-text);
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h2 {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .empty-state p {
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        .app-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-sidebar-header h2 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .search-box {
+            margin-bottom: 10px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+        }
+
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 5px;
+            display: none;
+        }
+
+        .chat-main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--body-bg);
+        }
+    </style>
+</head>
+<body>
+    <!-- App Wrapper -->
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <h1 style="margin: 0; font-size: 24px; font-weight: 600;">
+                    <span style="color: white;">Opn</span><span style="color: #ff69b4;">Hire</span>
+                </h1>
+            </div>
+            
+            <div class="sidebar-user">
+                <!-- Show uploaded profile picture if available -->
+                <div class="user-avatar" th:if="${session.user != null && seeker != null && seeker.profilePic != null && !seeker.profilePic.isEmpty()}">
+                    <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                </div>
+                
+                <!-- Show first letter of name if no profile picture -->
+                <div class="user-avatar" th:if="${seeker == null || seeker.profilePic == null || seeker.profilePic.isEmpty()}" th:text="${session.user != null ? session.user.firstName.substring(0, 1).toUpperCase() : 'U'}">S</div>
+                
+                <div class="user-info">
+                    <div class="user-name" th:if="${session.user != null}" th:text="${session.user.firstName + ' ' + session.user.lastName}">Sniga Das</div>
+                    <div class="user-role" th:if="${seeker != null && seeker.title != null && !seeker.title.isEmpty()}" th:text="${seeker.title}">Senior Developer</div>
+                    <div class="user-role" th:if="${seeker == null || seeker.title == null || seeker.title.isEmpty()}" th:text="${#strings.capitalize(#strings.toLowerCase(session.user.role))}">SEEKER</div>
+                </div>
+            </div>
+            
+            <!-- Navigation links -->
+            <ul class="nav-list">
+                <a href="/dashboard/seeker" class="nav-item">
+                    <span class="nav-icon">🏠</span> Dashboard
+                </a>
+                <a href="/jobs" class="nav-item">
+                    <span class="nav-icon">💼</span> Jobs
+                </a>
+                <a href="/applications" class="nav-item">
+                    <span class="nav-icon">📝</span> Applications
+                </a>
+                <a href="/companies" class="nav-item">
+                    <span class="nav-icon">🏢</span> Companies
+                </a>
+                <a href="/chat" class="nav-item active">
+                    <span class="nav-icon">💬</span> Messages
+                </a>
+                <a href="/notifications" class="nav-item">
+                    <span class="nav-icon">🔔</span> Notifications
+                </a>
+                <a href="/seeker-profile" class="nav-item">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="/resume-analyzer" class="nav-item">
+                    <span class="nav-icon">📊</span> Resume Analyzer
+                </a>
+                <a href="/preferences" class="nav-item">
+                    <span class="nav-icon">⚙️</span> Preferences
+                </a>
+            </ul>
+        </div>
+
+        <!-- Content Wrapper -->
+        <div class="chat-container">
+            <!-- Left sidebar (conversations list) -->
+            <div class="chat-sidebar">
+                <!-- Sidebar header with search -->
+                <div class="chat-sidebar-header">
+                    <h2>Messages</h2>
+                    <div class="search-box">
+                        <input type="text" id="user-search" placeholder="Search users...">
+                    </div>
+                    <div id="search-results" class="search-results"></div>
+                </div>
+                
+                <!-- Conversation list -->
+                <div class="conversation-list">
+                    <!-- Conversations will be populated dynamically -->
+                </div>
+            </div>
+            
+            <!-- Main chat area -->
+            <div class="chat-main-container">
+                <!-- Empty state (shown when no chat is selected) -->
+                <div class="empty-state" id="empty-chat-view">
+                    <div class="empty-state-icon">💬</div>
+                    <h2>Your Messages</h2>
+                    <p>Select a conversation to start chatting or search for a user to start a new one</p>
+                </div>
+                
+                <!-- Chat content (hidden initially, shown when chat is selected) -->
+                <div class="chat-main" id="chat-content-view" style="display: none;">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <div class="avatar" id="chat-avatar"></div>
+                        <div class="chat-title" id="chat-title"></div>
+                    </div>
+                    
+                    <!-- Message Container -->
+                    <div class="message-container" id="message-container">
+                        <!-- Messages will be populated dynamically -->
+                    </div>
+                    
+                    <!-- Message Input -->
+                    <div class="message-input-container">
+                        <textarea class="message-input" placeholder="Type a message..."></textarea>
+                        <div class="message-actions">
+                            <input type="file" id="file-upload" style="display: none;" accept="image/*">
+                            <button class="action-button attach-button" title="Attach image">📎</button>
+                            <button class="action-button send-button">➤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden fields for current user data -->
+    <input type="hidden" id="current-user-id" th:if="${currentUser}" th:value="${currentUser.id}" />
+    <input type="hidden" id="current-user-name" th:if="${currentUser}" th:value="${currentUser.firstName + ' ' + currentUser.lastName}" />
+
+    <!-- WebSocket scripts -->
+    <script src="/webjars/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.4/stomp.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Connect to WebSocket server
+            const socket = new SockJS('/ws');
+            const stompClient = Stomp.over(socket);
+            
+            // Current chat and user data would be populated from server
+            let currentChat = null;
+            let currentUser = null;
+            
+            // Get current user from Thymeleaf model
+            if (document.getElementById('current-user-id')) {
+                currentUser = {
+                    id: document.getElementById('current-user-id').value,
+                    name: document.getElementById('current-user-name').value
+                };
+            } else {
+                // Fallback if not provided by server
+                currentUser = {
+                    id: 1,
+                    name: 'Current User'
+                };
+            }
+            
+            // Elements
+            const emptyView = document.getElementById('empty-chat-view');
+            const chatView = document.getElementById('chat-content-view');
+            const messageContainer = document.getElementById('message-container');
+            const chatTitle = document.getElementById('chat-title');
+            const chatAvatar = document.getElementById('chat-avatar');
+            const conversationList = document.querySelector('.conversation-list');
+            const searchInput = document.getElementById('user-search');
+            const searchResults = document.getElementById('search-results');
+            
+            // User search functionality
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                
+                console.log('Searching for users with query:', query);
+                
+                // Fetch users matching the search query
+                fetch(`/chat/search-users?query=${encodeURIComponent(query)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to search users: ${response.status} ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(users => {
+                        console.log('Search results:', users);
+                        searchResults.innerHTML = '';
+                        
+                        if (users.length === 0) {
+                            searchResults.innerHTML = '<div style="padding: 10px; text-align: center; color: var(--secondary-text);">No users found</div>';
+                        } else {
+                            users.forEach(user => {
+                                const userItem = document.createElement('div');
+                                userItem.className = 'conversation-item';
+                                userItem.style.margin = '5px 0';
+                                
+                                const initialLetter = user.name.charAt(0);
+                                
+                                userItem.innerHTML = `
+                                    <div class="avatar">${initialLetter}</div>
+                                    <div class="conversation-info">
+                                        <div class="conversation-name">${user.name}</div>
+                                        <div class="conversation-preview">${user.role}</div>
+                                    </div>
+                                `;
+                                
+                                userItem.addEventListener('click', function() {
+                                    console.log('Starting chat with user:', user);
+                                    // Start a chat with this user
+                                    window.location.href = `/chat/conversation/${user.id}`;
+                                });
+                                
+                                searchResults.appendChild(userItem);
+                            });
+                        }
+                        
+                        searchResults.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error searching for users:', error);
+                        searchResults.innerHTML = '<div style="padding: 10px; text-align: center; color: var(--secondary-text);">Error searching for users</div>';
+                        searchResults.style.display = 'block';
+                    });
+            });
+            
+            // Hide search results when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+                    searchResults.style.display = 'none';
+                }
+            });
+            
+            // Load existing conversations from server
+            function loadConversations() {
+                console.log('Loading conversations for user:', currentUser);
+                
+                // Make an AJAX call to get all chats for the current user
+                fetch('/chat/conversations')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to load conversations: ${response.status} ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(chats => {
+                        console.log('Received chats:', chats);
+                        // Clear existing list
+                        conversationList.innerHTML = '';
+                        
+                        if (chats && chats.length > 0) {
+                            chats.forEach(chat => {
+                                try {
+                                    addChatToList(chat);
+                                } catch (err) {
+                                    console.error('Error adding chat to list:', err, chat);
+                                }
+                            });
+                        } else {
+                            conversationList.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--secondary-text);">No conversations yet</div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading conversations:', error);
+                        conversationList.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--secondary-text);">Could not load conversations</div>';
+                    });
+            }
+            
+            // Add a chat to the conversation list
+            function addChatToList(chat) {
+                console.log('Adding chat to list:', chat);
+                
+                const chatItem = document.createElement('div');
+                chatItem.className = 'conversation-item';
+                chatItem.dataset.chatId = chat.id || chat.chatId; // Support both formats
+                
+                // Set active class if this is the current chat
+                if (currentChat && (chat.id == currentChat || chat.chatId == currentChat)) {
+                    chatItem.classList.add('active');
+                }
+                
+                // Get the display name and initial
+                let displayName, initial;
+                
+                if (chat.isGroup) {
+                    displayName = chat.name || chat.chatName;
+                    initial = displayName ? displayName.charAt(0) : 'G';
+                } else {
+                    // Handle different data formats
+                    if (chat.otherUser) {
+                        displayName = chat.otherUser.name;
+                    } else if (chat.chatName) {
+                        displayName = chat.chatName;
+                    } else if (chat.name) {
+                        displayName = chat.name;
+                    } else {
+                        displayName = "Unknown";
+                        console.error("Could not determine chat name:", chat);
+                    }
+                    
+                    initial = displayName.charAt(0);
+                }
+                
+                // Create time string
+                const messageTime = chat.lastMessageTime ? formatTime(new Date(chat.lastMessageTime)) : '';
+                
+                const lastMessage = chat.lastMessage || chat.lastMessageContent || 'Start a conversation';
+                
+                chatItem.innerHTML = `
+                    <div class="avatar">${initial}</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">${displayName}</div>
+                        <div class="conversation-preview">${lastMessage}</div>
+                    </div>
+                    <div class="conversation-meta">
+                        ${messageTime ? `<div class="conversation-time">${messageTime}</div>` : ''}
+                        ${chat.unreadCount > 0 ? `<div class="conversation-unread">${chat.unreadCount}</div>` : ''}
+                    </div>
+                `;
+                
+                // Add click event to load the chat
+                chatItem.addEventListener('click', function() {
+                    const chatId = chat.id || chat.chatId;
+                    
+                    // Get user data from the chat
+                    let userData;
+                    if (chat.isGroup) {
+                        userData = { name: chat.name || chat.chatName };
+                    } else if (chat.otherUser) {
+                        userData = chat.otherUser;
+                    } else {
+                        userData = { 
+                            name: chat.chatName || chat.name,
+                            id: chat.otherUserId,
+                            role: chat.otherUserRole
+                        };
+                    }
+                    
+                    // Load the chat directly instead of page reload
+                    loadChat(chatId, userData);
+                });
+                
+                conversationList.appendChild(chatItem);
+            }
+            
+            // Format time for display
+            function formatTime(date) {
+                // If today, show time. If other day, show date
+                const now = new Date();
+                const isToday = date.toDateString() === now.toDateString();
+                
+                if (isToday) {
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                } else {
+                    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                }
+            }
+            
+            // Connect to chat socket
+            stompClient.connect({}, function(frame) {
+                console.log('Connected to WebSocket: ' + frame);
+                
+                // Subscribe to personal message queue
+                stompClient.subscribe('/user/' + currentUser.id + '/queue/messages', function(message) {
+                    const messageData = JSON.parse(message.body);
+                    console.log('Received message in queue:', messageData);
+                    
+                    // If this is for the current chat, add it to the UI
+                    if (currentChat && messageData.chatId == currentChat) {
+                        addMessageToUI({
+                            senderId: messageData.senderId,
+                            senderName: messageData.senderName || 'User', // Fallback to 'User' if name isn't available
+                            content: messageData.content,
+                            timestamp: messageData.timestamp,
+                            attachmentUrl: messageData.attachmentUrl,
+                            attachmentType: messageData.attachmentType,
+                            attachmentName: messageData.attachmentName,
+                            isOutgoing: parseInt(messageData.senderId) === parseInt(currentUser.id)
+                        });
+                    }
+                    
+                    // Refresh conversation list to show latest message
+                    loadConversations();
+                });
+                
+                // Initial load of conversations
+                loadConversations();
+            });
+            
+            // Function to switch to a specific chat
+            function loadChat(chatId, userData) {
+                // Hide empty state and show chat content
+                emptyView.style.display = 'none';
+                chatView.style.display = 'flex';
+                
+                // Update chat header with user data
+                chatTitle.textContent = userData.name;
+                chatAvatar.textContent = userData.name.charAt(0);
+                
+                // Clear previous messages
+                messageContainer.innerHTML = '';
+                
+                // Set current chat ID
+                currentChat = chatId;
+                
+                // Update URL without reloading
+                const newUrl = `/chat?chatId=${chatId}`;
+                window.history.pushState({ chatId: chatId }, '', newUrl);
+                
+                // Load messages for this chat
+                fetchChatMessages(chatId);
+                
+                // Mark messages as read
+                if (stompClient && stompClient.connected) {
+                    stompClient.send("/app/chat.markRead/" + chatId, {}, JSON.stringify(currentUser));
+                }
+                
+                // Subscribe to the chat topic for real-time messages
+                // First unsubscribe from any previous chat topics
+                if (window.currentChatSubscription) {
+                    window.currentChatSubscription.unsubscribe();
+                }
+                
+                // Subscribe to current chat topic
+                window.currentChatSubscription = stompClient.subscribe('/topic/chat/' + chatId, function(message) {
+                    const messageData = JSON.parse(message.body);
+                    console.log('Received message in topic:', messageData);
+                    
+                    // Handle different message types
+                    if (messageData.type === 'JOIN' || messageData.type === 'LEAVE' || messageData.type === 'READ_RECEIPT') {
+                        // Handle system messages
+                        console.log('System message:', messageData);
+                    } else {
+                        // Only add to UI if it's from someone else (our own messages are added directly)
+                        if (parseInt(messageData.senderId) !== parseInt(currentUser.id)) {
+                            addMessageToUI({
+                                senderId: messageData.senderId,
+                                senderName: messageData.senderName || 'User', // Fallback to 'User' if name isn't available
+                                content: messageData.content,
+                                timestamp: messageData.timestamp,
+                                attachmentUrl: messageData.attachmentUrl,
+                                attachmentType: messageData.attachmentType,
+                                attachmentName: messageData.attachmentName,
+                                isOutgoing: false
+                            });
+                        }
+                    }
+                });
+                
+                // Update active state in conversation list
+                document.querySelectorAll('.conversation-item').forEach(item => {
+                    if (item.dataset.chatId == chatId) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Fetch chat messages from server
+            function fetchChatMessages(chatId) {
+                fetch(`/chat/${chatId}/messages`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to fetch messages: ${response.status} ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Received message data:', data);
+                        messageContainer.innerHTML = '';
+                        
+                        if (data && data.messages && data.messages.length > 0) {
+                            // Sort messages by timestamp (oldest first)
+                            const sortedMessages = [...data.messages].sort((a, b) => {
+                                return new Date(a.timestamp) - new Date(b.timestamp);
+                            });
+                            
+                            sortedMessages.forEach(message => {
+                                // Check if sender is current user
+                                const isCurrentUser = parseInt(message.senderId) === parseInt(currentUser.id);
+                                
+                                addMessageToUI({
+                                    senderId: message.senderId,
+                                    senderName: message.senderName,
+                                    content: message.content,
+                                    timestamp: message.timestamp,
+                                    attachmentUrl: message.attachmentUrl,
+                                    attachmentType: message.attachmentType,
+                                    attachmentName: message.attachmentName,
+                                    isOutgoing: isCurrentUser
+                                });
+                            });
+                            
+                            // Scroll to the bottom to show the most recent messages
+                            messageContainer.scrollTop = messageContainer.scrollHeight;
+                        } else {
+                            messageContainer.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--secondary-text);">No messages yet</div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching messages:', error);
+                        messageContainer.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--secondary-text);">Could not load messages</div>';
+                    });
+            }
+            
+            // Add a message to the UI
+            function addMessageToUI(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${message.isOutgoing ? 'message-outgoing' : 'message-incoming'}`;
+                
+                // Format timestamp
+                const time = new Date(message.timestamp);
+                const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                // Set content based on message type
+                if (!message.isOutgoing) {
+                    const senderElement = document.createElement('div');
+                    senderElement.className = 'message-sender';
+                    senderElement.textContent = message.senderName || 'User';
+                    messageElement.appendChild(senderElement);
+                }
+                
+                const contentElement = document.createElement('div');
+                contentElement.className = 'message-content';
+                contentElement.textContent = message.content;
+                messageElement.appendChild(contentElement);
+                
+                // Add attachment if exists
+                if (message.attachmentUrl && message.attachmentType) {
+                    if (message.attachmentType.startsWith('image/')) {
+                        // Add image attachment
+                        const imageElement = document.createElement('img');
+                        imageElement.className = 'message-image';
+                        imageElement.src = `/uploads/${message.attachmentUrl}`;
+                        imageElement.alt = message.attachmentName || 'Image';
+                        
+                        // Add click to open in new tab
+                        imageElement.addEventListener('click', function() {
+                            window.open(`/uploads/${message.attachmentUrl}`, '_blank');
+                        });
+                        
+                        messageElement.appendChild(imageElement);
+                    } else {
+                        // Add other file attachment link
+                        const attachmentElement = document.createElement('div');
+                        attachmentElement.className = 'message-attachment';
+                        
+                        const attachmentLink = document.createElement('a');
+                        attachmentLink.className = 'message-attachment-link';
+                        attachmentLink.href = `/uploads/${message.attachmentUrl}`;
+                        attachmentLink.target = '_blank';
+                        
+                        const attachmentIcon = document.createElement('span');
+                        attachmentIcon.className = 'message-attachment-icon';
+                        attachmentIcon.textContent = '📎';
+                        
+                        const attachmentName = document.createElement('span');
+                        attachmentName.className = 'message-attachment-name';
+                        attachmentName.textContent = message.attachmentName || 'Attachment';
+                        
+                        attachmentLink.appendChild(attachmentIcon);
+                        attachmentLink.appendChild(attachmentName);
+                        attachmentElement.appendChild(attachmentLink);
+                        
+                        messageElement.appendChild(attachmentElement);
+                    }
+                }
+                
+                const timeElement = document.createElement('div');
+                timeElement.className = 'message-time';
+                timeElement.textContent = formattedTime;
+                messageElement.appendChild(timeElement);
+                
+                messageContainer.appendChild(messageElement);
+                
+                // Add a small delay before scrolling to fix potential layout issues
+                setTimeout(() => {
+                    // Scroll to the bottom to show the latest message
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }, 50);
+            }
+            
+            // Handle send button click
+            document.querySelector('.send-button').addEventListener('click', function() {
+                const input = document.querySelector('.message-input');
+                if (currentChat && input.value.trim()) {
+                    sendMessage(currentChat, input.value.trim());
+                    input.value = '';
+                }
+            });
+            
+            // Handle message input keypress (Enter to send)
+            document.querySelector('.message-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.querySelector('.send-button').click();
+                }
+            });
+            
+            // Handle attachment button click
+            document.querySelector('.attach-button').addEventListener('click', function() {
+                document.getElementById('file-upload').click();
+            });
+            
+            // Handle file selection
+            document.getElementById('file-upload').addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0] && currentChat) {
+                    const file = e.target.files[0];
+                    
+                    // Check file size (limit to 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File is too large. Maximum size is 5MB.');
+                        return;
+                    }
+                    
+                    // Upload the file
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('chatId', currentChat);
+                    
+                    // Show loading state
+                    const input = document.querySelector('.message-input');
+                    const originalText = input.value;
+                    input.value = 'Uploading image...';
+                    input.disabled = true;
+                    
+                    fetch('/api/chat/upload', {
+                        method: 'POST',
+                        body: formData,
+                        // Don't set Content-Type header as FormData will automatically set it with boundary
+                        headers: {
+                            // Include CSRF token if present
+                            ...(document.querySelector('meta[name="_csrf"]') ? {
+                                [document.querySelector('meta[name="_csrf_header"]').content]: document.querySelector('meta[name="_csrf"]').content
+                            } : {})
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Upload failed with status: ${response.status} ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success === 'true') {
+                            // Reset input
+                            input.value = originalText;
+                            input.disabled = false;
+                            
+                            // Send message with attachment
+                            sendMessageWithAttachment(
+                                currentChat, 
+                                originalText || '📷 Image', // Use input text or default message
+                                data.url, 
+                                data.type,
+                                data.name
+                            );
+                        } else {
+                            console.error('Upload error:', data);
+                            alert('Failed to upload file: ' + (data.error || 'Unknown error'));
+                            input.value = originalText;
+                            input.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error uploading file:', error);
+                        alert('Error uploading file: ' + error.message);
+                        input.value = originalText;
+                        input.disabled = false;
+                    });
+                    
+                    // Clear the file input
+                    e.target.value = '';
+                }
+            });
+            
+            // Send message function
+            function sendMessage(chatId, content) {
+                if (!stompClient || !content.trim()) return;
+                
+                const message = {
+                    chatId: chatId,
+                    senderId: currentUser.id,
+                    content: content,
+                    timestamp: new Date()
+                };
+                
+                console.log('Sending message:', message);
+                stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(message));
+                
+                // Add message to UI immediately (optimistic rendering)
+                addMessageToUI({
+                    senderId: currentUser.id,
+                    content: content,
+                    timestamp: new Date(),
+                    isOutgoing: true
+                });
+            }
+            
+            // Send message with attachment function
+            function sendMessageWithAttachment(chatId, content, attachmentUrl, attachmentType, attachmentName) {
+                if (!stompClient) return;
+                
+                const message = {
+                    chatId: chatId,
+                    senderId: currentUser.id,
+                    content: content,
+                    attachmentUrl: attachmentUrl,
+                    attachmentType: attachmentType,
+                    attachmentName: attachmentName,
+                    timestamp: new Date()
+                };
+                
+                console.log('Sending message with attachment:', message);
+                stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(message));
+                
+                // Add message to UI immediately (optimistic rendering)
+                addMessageToUI({
+                    senderId: currentUser.id,
+                    content: content,
+                    attachmentUrl: attachmentUrl,
+                    attachmentType: attachmentType,
+                    attachmentName: attachmentName,
+                    timestamp: new Date(),
+                    isOutgoing: true
+                });
+            }
+            
+            // Check URL for chat ID parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const chatId = urlParams.get('chatId');
+            
+            if (chatId) {
+                // Fetch chat info and load it
+                fetch(`/chat/${chatId}`)
+                    .then(response => response.json())
+                    .then(chatData => {
+                        // Load chat with the other user's data
+                        const userData = chatData.isGroup 
+                            ? { name: chatData.name } 
+                            : chatData.otherUser;
+                        
+                        loadChat(chatId, userData);
+                    })
+                    .catch(error => {
+                        console.error('Error loading chat:', error);
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

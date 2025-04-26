@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Profile - OpnHire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #e1e1e1;
+            margin-bottom: 20px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            padding: 30px;
+        }
+        
+        .preview-card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .preview-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            background-color: #2a2a3a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin-right: 20px;
+            overflow: hidden;
+        }
+        
+        .company-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .company-location {
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+        
+        .company-links {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .company-link {
+            color: #8a2be2;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .company-link:hover {
+            text-decoration: underline;
+        }
+        
+        .company-bio {
+            margin-top: 20px;
+            line-height: 1.6;
+            color: #e1e1e1;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #2a2a3a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #ff69b4, #8a2be2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0a0;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .alert-error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+        
+        .nav-link {
+            color: #a0a0a0;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: #ffffff;
+        }
+        
+        .navigation {
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        
+        .no-data {
+            color: #777;
+            font-style: italic;
+        }
+        
+        .file-upload {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload label {
+            padding: 8px 15px;
+            background-color: #2a2a3a;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        .file-name {
+            margin-left: 10px;
+            color: #a0a0a0;
+        }
+        
+        .current-logo {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .current-logo-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-right: 10px;
+        }
+        
+        .current-logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navigation">
+            <a href="/dashboard/recruiter" class="nav-link">Dashboard</a>
+            <a href="/jobs/manage" class="nav-link">Manage Jobs</a>
+            <a href="/company-profile" class="nav-link active">Company Profile</a>
+            <a href="/logout" class="nav-link">Logout</a>
+        </div>
+    
+        <div class="page-header">
+            <h1>Company Profile</h1>
+        </div>
+        
+        <!-- Success/Error Messages -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}">Profile updated successfully!</div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}">An error occurred.</div>
+        
+        <!-- Company Profile Preview -->
+        <div class="preview-card">
+            <div class="preview-header">
+                <!-- Show uploaded logo if available -->
+                <div class="company-logo" th:if="${recruiter.companyLogo != null && !recruiter.companyLogo.isEmpty()}">
+                    <img th:src="@{'/uploads/' + ${recruiter.companyLogo}}" alt="Company Logo">
+                </div>
+                
+                <!-- Show first letter of company name if no logo -->
+                <div class="company-logo" th:if="${recruiter.companyLogo == null || recruiter.companyLogo.isEmpty()}">
+                    <span th:if="${recruiter.company != null && !recruiter.company.isEmpty()}" 
+                         th:text="${recruiter.company.substring(0,1).toUpperCase()}">A</span>
+                    <span th:if="${recruiter.company == null || recruiter.company.isEmpty()}">?</span>
+                </div>
+                
+                <div>
+                    <div class="company-name" th:text="${recruiter.company != null && !recruiter.company.isEmpty() ? recruiter.company : 'Your Company Name'}">Acme Inc.</div>
+                    <div class="company-location" th:text="${recruiter.location != null && !recruiter.location.isEmpty() ? recruiter.location : 'Location not specified'}">San Francisco, CA</div>
+                </div>
+            </div>
+            
+            <div class="company-links">
+                <a th:if="${recruiter.websiteUrl != null && !recruiter.websiteUrl.isEmpty()}" 
+                   th:href="${recruiter.websiteUrl}" class="company-link" target="_blank">🌐 Website</a>
+                <a th:if="${recruiter.linkedinUrl != null && !recruiter.linkedinUrl.isEmpty()}" 
+                   th:href="${recruiter.linkedinUrl}" class="company-link" target="_blank">📎 LinkedIn</a>
+                <a th:if="${recruiter.githubUrl != null && !recruiter.githubUrl.isEmpty()}" 
+                   th:href="${recruiter.githubUrl}" class="company-link" target="_blank">💻 GitHub</a>
+            </div>
+            
+            <div class="company-bio" th:if="${recruiter.bio != null && !recruiter.bio.isEmpty()}" th:text="${recruiter.bio}">
+                Acme Inc. is a leading software development company specializing in AI and machine learning solutions.
+                We are committed to innovation and excellence in all our products and services.
+            </div>
+            <div class="company-bio no-data" th:if="${recruiter.bio == null || recruiter.bio.isEmpty()}">
+                No company description provided. Add a description below to tell candidates about your company.
+            </div>
+        </div>
+        
+        <!-- Company Profile Form -->
+        <div class="form-card">
+            <form th:action="@{/company-profile/update}" method="post" th:object="${recruiter}" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="company" class="required">Company Name</label>
+                        <input type="text" id="company" name="company" th:field="*{company}" required placeholder="Enter your company name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location" class="required">Location</label>
+                        <input type="text" id="location" name="location" th:field="*{location}" required placeholder="City, State, Country or Remote">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Company Logo</label>
+                    
+                    <!-- Show current logo if available -->
+                    <div class="current-logo" th:if="${recruiter.companyLogo != null && !recruiter.companyLogo.isEmpty()}">
+                        <div class="current-logo-preview">
+                            <img th:src="@{'/uploads/' + ${recruiter.companyLogo}}" alt="Current Logo">
+                        </div>
+                        <span>Current logo</span>
+                    </div>
+                    
+                    <!-- File upload field -->
+                    <div class="file-upload">
+                        <label for="logo">Choose a new logo</label>
+                        <input type="file" id="logo" name="logo" accept="image/*" onchange="updateFileName(this)">
+                        <span class="file-name" id="file-name">No file chosen</span>
+                    </div>
+                    <small style="color: #a0a0a0; display: block; margin-top: 5px;">
+                        Recommended size: 400x400 pixels. Maximum file size: 2MB. Supported formats: JPEG, PNG, GIF.
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="websiteUrl">Company Website</label>
+                    <input type="url" id="websiteUrl" name="websiteUrl" th:field="*{websiteUrl}" placeholder="https://yourcompany.com">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="linkedinUrl">LinkedIn Profile</label>
+                        <input type="url" id="linkedinUrl" name="linkedinUrl" th:field="*{linkedinUrl}" placeholder="https://linkedin.com/company/yourcompany">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="githubUrl">GitHub Profile</label>
+                        <input type="url" id="githubUrl" name="githubUrl" th:field="*{githubUrl}" placeholder="https://github.com/yourcompany">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bio">Company Description</label>
+                    <textarea id="bio" name="bio" th:field="*{bio}" placeholder="Tell candidates about your company, culture, mission, and values..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="/dashboard/recruiter" class="btn-secondary">Cancel</a>
+                    <button type="submit" class="btn-primary">Save Company Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function updateFileName(input) {
+            const fileName = input.files.length > 0 ? input.files[0].name : 'No file chosen';
+            document.getElementById('file-name').textContent = fileName;
+        }
+    </script>
+</body>
+</html> 

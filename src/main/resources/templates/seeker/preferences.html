@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Preferences - OpnHire</title>
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #1e1e2d;
+            --body-bg: #121212;
+            --sidebar-bg: #1a1a25;
+            --header-bg: #121218;
+            --accent-color: #ff69b4;
+            --border-radius: 8px;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .navigation {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #a0a0a0;
+            padding: 8px 12px;
+            margin-right: 10px;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        
+        .nav-link.active {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: white;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(30, 30, 45, 0.8);
+            color: #fff;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--success-color);
+        }
+        
+        .alert-error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: var(--error-color);
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navigation">
+            <a href="/dashboard/seeker" class="nav-link">Dashboard</a>
+            <a href="/seeker-profile" class="nav-link">My Profile</a>
+            <a href="/preferences" class="nav-link active">Job Preferences</a>
+            <a href="/saved-jobs" class="nav-link">Saved Jobs</a>
+            <a href="/applications" class="nav-link">My Applications</a>
+            <a href="/logout" class="nav-link">Logout</a>
+        </div>
+        
+        <!-- Success Message -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}">
+            Preferences updated successfully!
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title">Job Preferences</h1>
+                <p class="card-subtitle">Set your job search preferences to find better matches</p>
+            </div>
+            
+            <form action="/preferences/update" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="minSalary">Minimum Salary ($)</label>
+                        <input type="number" id="minSalary" name="minSalary" th:value="${preference.minSalary}" 
+                               placeholder="e.g. 50000" min="0" step="1000">
+                        <p class="help-text">Your minimum acceptable annual salary</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maxSalary">Maximum Salary ($)</label>
+                        <input type="number" id="maxSalary" name="maxSalary" th:value="${preference.maxSalary}" 
+                               placeholder="e.g. 100000" min="0" step="1000">
+                        <p class="help-text">Your desired maximum annual salary</p>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="preferredLocation">Preferred Location</label>
+                        <input type="text" id="preferredLocation" name="preferredLocation" th:value="${preference.preferredLocation}" 
+                               placeholder="e.g. New York, Remote">
+                        <p class="help-text">City, state, or remote work preference</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="preferredJobType">Preferred Job Type</label>
+                        <select id="preferredJobType" name="preferredJobType">
+                            <option value="">Any Job Type</option>
+                            <option value="Full-time" th:selected="${preference.preferredJobType == 'Full-time'}">Full-time</option>
+                            <option value="Part-time" th:selected="${preference.preferredJobType == 'Part-time'}">Part-time</option>
+                            <option value="Contract" th:selected="${preference.preferredJobType == 'Contract'}">Contract</option>
+                            <option value="Temporary" th:selected="${preference.preferredJobType == 'Temporary'}">Temporary</option>
+                            <option value="Internship" th:selected="${preference.preferredJobType == 'Internship'}">Internship</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="preferredSkills">Skills (comma separated)</label>
+                        <textarea id="preferredSkills" name="preferredSkills" rows="3" 
+                                 placeholder="e.g. JavaScript, React, Node.js" th:text="${preference.preferredSkills}"></textarea>
+                        <p class="help-text">Skills to highlight in job matching</p>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="preferredIndustry">Preferred Industry</label>
+                        <input type="text" id="preferredIndustry" name="preferredIndustry" th:value="${preference.preferredIndustry}" 
+                               placeholder="e.g. Technology, Healthcare, Finance">
+                        <p class="help-text">Industry or sector you prefer to work in</p>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary">Save Preferences</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

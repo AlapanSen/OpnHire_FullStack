@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Companies - OpnHire</title>
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #1e1e2d;
+            --body-bg: #121212;
+            --sidebar-bg: #1a1a25;
+            --header-bg: #121218;
+            --accent-color: #ff69b4;
+            --border-radius: 8px;
+            --sidebar-width: 220px;
+            --header-height: 60px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            z-index: 100;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            height: var(--header-height);
+        }
+        
+        .sidebar-user {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        
+        .nav-list {
+            list-style-type: none;
+            padding: 15px 0;
+        }
+        
+        .nav-item {
+            padding: 10px 15px;
+            margin: 5px 10px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: white;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Header styles */
+        .header {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: var(--header-bg);
+            z-index: 99;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .avatar-circle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .avatar-circle:hover {
+            background-color: #3c3c4a;
+        }
+        
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 160px;
+            z-index: 100;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 10px 15px;
+            color: white;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding-top: var(--header-height);
+            min-height: 100vh;
+        }
+        
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .view-all {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        /* Company grid styles */
+        .company-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .company-card {
+            background-color: #242436;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .company-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .company-logo-container {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a1a25;
+            position: relative;
+        }
+        
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--border-radius);
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .company-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+        }
+        
+        .company-details {
+            padding: 15px;
+        }
+        
+        .company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .company-location {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .company-location svg {
+            width: 14px;
+            height: 14px;
+            margin-right: 5px;
+        }
+        
+        .company-info {
+            font-size: 14px;
+            color: #a0a0a0;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .recruiter-count {
+            display: flex;
+            align-items: center;
+        }
+        
+        .job-count {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Search and filter */
+        .search-container {
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            min-width: 200px;
+            background-color: #242436;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            outline: none;
+        }
+        
+        .search-btn {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .company-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 600;">
+                <span style="color: white;">Opn</span><span style="color: #ff69b4;">Hire</span>
+            </h1>
+        </div>
+        
+        <div class="sidebar-user">
+            <!-- Show uploaded profile picture if available -->
+            <div class="user-avatar" th:if="${seeker != null && seeker.profilePic != null && !seeker.profilePic.isEmpty()}">
+                <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </div>
+            
+            <!-- Show first letter of name if no profile picture -->
+            <div class="user-avatar" th:if="${seeker == null || seeker.profilePic == null || seeker.profilePic.isEmpty()}" th:text="${session.user != null ? session.user.firstName.substring(0, 1).toUpperCase() : 'U'}">A</div>
+            
+            <div class="user-info">
+                <div class="user-name" th:if="${session.user != null}" th:text="${session.user.firstName + ' ' + session.user.lastName}">Alapan Sen</div>
+                <div class="user-role" th:if="${seeker != null && seeker.title != null && !seeker.title.isEmpty()}" th:text="${seeker.title}">Senior Developer</div>
+                <div class="user-role" th:if="${seeker == null || seeker.title == null || seeker.title.isEmpty()}" th:text="${#strings.capitalize(#strings.toLowerCase(session.user.role))}">Seeker</div>
+            </div>
+        </div>
+        
+        <!-- Navigation links - include from fragments -->
+        <div th:replace="~{nav-links :: seeker-nav}"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div style="display: flex; align-items: center;">
+            <h1 style="font-size: 22px; margin: 0;">Companies</h1>
+        </div>
+        
+        <div class="header-actions">
+            <a href="/notifications" class="notification-link" style="text-decoration: none; color: white; margin-right: 20px; position: relative; display: inline-block;">
+                <span style="font-size: 24px; display: inline-block;">🔔</span>
+                <span th:if="${session.unreadNotificationCount != null && session.unreadNotificationCount > 0}" 
+                      class="notification-badge"
+                      th:text="${session.unreadNotificationCount}">3</span>
+            </a>
+            
+            <div class="user-menu">
+                <!-- Show uploaded profile picture if available -->
+                <div class="avatar-circle" th:if="${seeker != null && seeker.profilePic != null && !seeker.profilePic.isEmpty()}" onclick="toggleUserDropdown()">
+                    <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                </div>
+                
+                <!-- Show first letter of name if no profile picture -->
+                <div class="avatar-circle" th:if="${seeker == null || seeker.profilePic == null || seeker.profilePic.isEmpty()}" 
+                     onclick="toggleUserDropdown()" 
+                     th:text="${session.user != null ? session.user.firstName.substring(0, 1).toUpperCase() : 'U'}">A</div>
+                
+                <div class="user-dropdown">
+                    <a href="/seeker-profile" class="dropdown-item">View Profile</a>
+                    <a href="/preferences" class="dropdown-item">Preferences</a>
+                    <a href="/logout" class="dropdown-item">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Search and Filter -->
+            <div class="card">
+                <div class="search-container">
+                    <input type="text" id="companySearch" class="search-input" placeholder="Search companies..." oninput="filterCompanies()">
+                </div>
+            </div>
+            
+            <!-- Companies Grid -->
+            <div class="card">
+                <div class="section-header">
+                    <h2 class="section-title">All Companies</h2>
+                </div>
+                
+                <!-- Display message when no companies are available -->
+                <div th:if="${companies == null || #lists.isEmpty(companies)}" style="text-align: center; padding: 40px;">
+                    <p>No companies found.</p>
+                </div>
+                
+                <!-- Company Grid -->
+                <div th:if="${companies != null && !#lists.isEmpty(companies)}" class="company-grid">
+                    <a th:each="companyEntry : ${companies}" 
+                       th:href="@{'/companies/' + ${companyEntry.key}}" 
+                       class="company-card">
+                        <div class="company-logo-container">
+                            <!-- Use first recruiter's logo if available -->
+                            <div class="company-logo" th:if="${companyEntry.value[0].companyLogo == null || companyEntry.value[0].companyLogo.isEmpty()}"
+                                 th:text="${companyEntry.key != null && !companyEntry.key.isEmpty() ? companyEntry.key.substring(0, 1).toUpperCase() : 'C'}">C</div>
+                            <div class="company-logo" th:if="${companyEntry.value[0].companyLogo != null && !companyEntry.value[0].companyLogo.isEmpty()}">
+                                <img th:src="@{'/uploads/' + ${companyEntry.value[0].companyLogo}}" alt="Company Logo">
+                            </div>
+                        </div>
+                        
+                        <div class="company-details">
+                            <h3 class="company-name" th:text="${companyEntry.key}">Company Name</h3>
+                            <div class="company-location" th:if="${companyEntry.value[0].location != null && !companyEntry.value[0].location.isEmpty()}">
+                                <span style="margin-right: 5px;">📍</span>
+                                <span th:text="${companyEntry.value[0].location}">Location</span>
+                            </div>
+                            <div class="company-info">
+                                <div class="recruiter-count">
+                                    <span style="margin-right: 5px;">👥</span>
+                                    <span th:text="${companyEntry.value.size() + ' ' + (companyEntry.value.size() == 1 ? 'Recruiter' : 'Recruiters')}">3 Recruiters</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // User dropdown functionality
+            const userAvatar = document.querySelector('.avatar-circle');
+            const dropdown = document.querySelector('.user-dropdown');
+            
+            function toggleUserDropdown() {
+                if (dropdown.style.display === 'block') {
+                    dropdown.style.display = 'none';
+                } else {
+                    dropdown.style.display = 'block';
+                }
+            }
+            
+            // Assign the function
+            window.toggleUserDropdown = toggleUserDropdown;
+            
+            // Close dropdown when clicking elsewhere
+            document.addEventListener('click', function(event) {
+                if (dropdown && userAvatar && event.target !== userAvatar && !userAvatar.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // Company search functionality
+            function filterCompanies() {
+                const searchInput = document.getElementById('companySearch').value.toLowerCase();
+                const companyCards = document.querySelectorAll('.company-card');
+                
+                companyCards.forEach(card => {
+                    const companyName = card.querySelector('.company-name').textContent.toLowerCase();
+                    const location = card.querySelector('.company-location span:last-child')?.textContent.toLowerCase() || '';
+                    
+                    if (companyName.includes(searchInput) || location.includes(searchInput)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Make the filter function available globally
+            window.filterCompanies = filterCompanies;
+        });
+    </script>
+</body>
+</html> 
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Companies - OpnHire</title>
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #1e1e2d;
+            --body-bg: #121212;
+            --sidebar-bg: #1a1a25;
+            --header-bg: #121218;
+            --accent-color: #ff69b4;
+            --border-radius: 8px;
+            --sidebar-width: 220px;
+            --header-height: 60px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            z-index: 100;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            height: var(--header-height);
+        }
+        
+        .sidebar-user {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        
+        .nav-list {
+            list-style-type: none;
+            padding: 15px 0;
+        }
+        
+        .nav-item {
+            padding: 10px 15px;
+            margin: 5px 10px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: white;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Header styles */
+        .header {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: var(--header-bg);
+            z-index: 99;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .avatar-circle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .avatar-circle:hover {
+            background-color: #3c3c4a;
+        }
+        
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 160px;
+            z-index: 100;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 10px 15px;
+            color: white;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding-top: var(--header-height);
+            min-height: 100vh;
+        }
+        
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .view-all {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        /* Company grid styles */
+        .company-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .company-card {
+            background-color: #242436;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .company-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .company-logo-container {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a1a25;
+            position: relative;
+        }
+        
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--border-radius);
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .company-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+        }
+        
+        .company-details {
+            padding: 15px;
+        }
+        
+        .company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .company-location {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .company-location svg {
+            width: 14px;
+            height: 14px;
+            margin-right: 5px;
+        }
+        
+        .company-info {
+            font-size: 14px;
+            color: #a0a0a0;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .recruiter-count {
+            display: flex;
+            align-items: center;
+        }
+        
+        .job-count {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Search and filter */
+        .search-container {
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            min-width: 200px;
+            background-color: #242436;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            outline: none;
+        }
+        
+        .search-btn {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .company-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 600;">
+                <span style="color: white;">Opn</span><span style="color: #ff69b4;">Hire</span>
+            </h1>
+        </div>
+        
+        <div class="sidebar-user">
+            <!-- Show uploaded profile picture if available -->
+            <div class="user-avatar" th:if="${seeker != null && seeker.profilePic != null && !seeker.profilePic.isEmpty()}">
+                <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </div>
+            
+            <!-- Show first letter of name if no profile picture -->
+            <div class="user-avatar" th:if="${seeker == null || seeker.profilePic == null || seeker.profilePic.isEmpty()}" th:text="${session.user != null ? session.user.firstName.substring(0, 1).toUpperCase() : 'U'}">A</div>
+            
+            <div class="user-info">
+                <div class="user-name" th:if="${session.user != null}" th:text="${session.user.firstName + ' ' + session.user.lastName}">Alapan Sen</div>
+                <div class="user-role" th:if="${seeker != null && seeker.title != null && !seeker.title.isEmpty()}" th:text="${seeker.title}">Senior Developer</div>
+                <div class="user-role" th:if="${seeker == null || seeker.title == null || seeker.title.isEmpty()}" th:text="${#strings.capitalize(#strings.toLowerCase(session.user.role))}">Seeker</div>
+            </div>
+        </div>
+        
+        <!-- Navigation links - include from fragments -->
+        <div th:replace="~{nav-links :: seeker-nav}"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div style="display: flex; align-items: center;">
+            <h1 style="font-size: 22px; margin: 0;">Companies</h1>
+        </div>
+        
+        <div class="header-actions">
+            <a href="/notifications" class="notification-link" style="text-decoration: none; color: white; margin-right: 20px; position: relative; display: inline-block;">
+                <span style="font-size: 24px; display: inline-block;">🔔</span>
+                <span th:if="${session.unreadNotificationCount != null && session.unreadNotificationCount > 0}" 
+                      class="notification-badge"
+                      th:text="${session.unreadNotificationCount}">3</span>
+            </a>
+            
+            <div class="user-menu">
+                <!-- Show uploaded profile picture if available -->
+                <div class="avatar-circle" th:if="${seeker != null && seeker.profilePic != null && !seeker.profilePic.isEmpty()}" onclick="toggleUserDropdown()">
+                    <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                </div>
+                
+                <!-- Show first letter of name if no profile picture -->
+                <div class="avatar-circle" th:if="${seeker == null || seeker.profilePic == null || seeker.profilePic.isEmpty()}" 
+                     onclick="toggleUserDropdown()" 
+                     th:text="${session.user != null ? session.user.firstName.substring(0, 1).toUpperCase() : 'U'}">A</div>
+                
+                <div class="user-dropdown">
+                    <a href="/seeker-profile" class="dropdown-item">View Profile</a>
+                    <a href="/preferences" class="dropdown-item">Preferences</a>
+                    <a href="/logout" class="dropdown-item">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Search and Filter -->
+            <div class="card">
+                <div class="search-container">
+                    <input type="text" id="companySearch" class="search-input" placeholder="Search companies..." oninput="filterCompanies()">
+                </div>
+            </div>
+            
+            <!-- Companies Grid -->
+            <div class="card">
+                <div class="section-header">
+                    <h2 class="section-title">All Companies</h2>
+                </div>
+                
+                <!-- Display message when no companies are available -->
+                <div th:if="${companies == null || #lists.isEmpty(companies)}" style="text-align: center; padding: 40px;">
+                    <p>No companies found.</p>
+                </div>
+                
+                <!-- Company Grid -->
+                <div th:if="${companies != null && !#lists.isEmpty(companies)}" class="company-grid">
+                    <a th:each="companyEntry : ${companies}" 
+                       th:href="@{'/companies/' + ${companyEntry.key}}" 
+                       class="company-card">
+                        <div class="company-logo-container">
+                            <!-- Use first recruiter's logo if available -->
+                            <div class="company-logo" th:if="${companyEntry.value[0].companyLogo == null || companyEntry.value[0].companyLogo.isEmpty()}"
+                                 th:text="${companyEntry.key != null && !companyEntry.key.isEmpty() ? companyEntry.key.substring(0, 1).toUpperCase() : 'C'}">C</div>
+                            <div class="company-logo" th:if="${companyEntry.value[0].companyLogo != null && !companyEntry.value[0].companyLogo.isEmpty()}">
+                                <img th:src="@{'/uploads/' + ${companyEntry.value[0].companyLogo}}" alt="Company Logo">
+                            </div>
+                        </div>
+                        
+                        <div class="company-details">
+                            <h3 class="company-name" th:text="${companyEntry.key}">Company Name</h3>
+                            <div class="company-location" th:if="${companyEntry.value[0].location != null && !companyEntry.value[0].location.isEmpty()}">
+                                <span style="margin-right: 5px;">📍</span>
+                                <span th:text="${companyEntry.value[0].location}">Location</span>
+                            </div>
+                            <div class="company-info">
+                                <div class="recruiter-count">
+                                    <span style="margin-right: 5px;">👥</span>
+                                    <span th:text="${companyEntry.value.size() + ' ' + (companyEntry.value.size() == 1 ? 'Recruiter' : 'Recruiters')}">3 Recruiters</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // User dropdown functionality
+            const userAvatar = document.querySelector('.avatar-circle');
+            const dropdown = document.querySelector('.user-dropdown');
+            
+            function toggleUserDropdown() {
+                if (dropdown.style.display === 'block') {
+                    dropdown.style.display = 'none';
+                } else {
+                    dropdown.style.display = 'block';
+                }
+            }
+            
+            // Assign the function
+            window.toggleUserDropdown = toggleUserDropdown;
+            
+            // Close dropdown when clicking elsewhere
+            document.addEventListener('click', function(event) {
+                if (dropdown && userAvatar && event.target !== userAvatar && !userAvatar.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // Company search functionality
+            function filterCompanies() {
+                const searchInput = document.getElementById('companySearch').value.toLowerCase();
+                const companyCards = document.querySelectorAll('.company-card');
+                
+                companyCards.forEach(card => {
+                    const companyName = card.querySelector('.company-name').textContent.toLowerCase();
+                    const location = card.querySelector('.company-location span:last-child')?.textContent.toLowerCase() || '';
+                    
+                    if (companyName.includes(searchInput) || location.includes(searchInput)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Make the filter function available globally
+            window.filterCompanies = filterCompanies;
+        });
+    </script>
+</body>
+</html> 

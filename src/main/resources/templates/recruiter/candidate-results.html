@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Search Results - OpnHire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3 {
+            color: #e1e1e1;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #a0a0a0;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            color: #ffffff;
+        }
+        
+        .search-summary {
+            margin-bottom: 20px;
+        }
+        
+        .search-term {
+            color: #8a2be2;
+            font-weight: bold;
+        }
+        
+        .result-count {
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+        
+        .filter-section {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .filter-label {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+        
+        .search-again-btn {
+            margin-left: auto;
+            background-color: transparent;
+            border: 1px solid #8a2be2;
+            color: #8a2be2;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .search-again-btn:hover {
+            background-color: rgba(138, 43, 226, 0.1);
+        }
+        
+        .candidate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .candidate-card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .candidate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .candidate-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .candidate-avatar {
+            width: 60px;
+            height: 60px;
+            background-color: #2a2a3a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .candidate-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .candidate-info {
+            flex: 1;
+        }
+        
+        .candidate-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .candidate-location {
+            color: #a0a0a0;
+            font-size: 14px;
+            margin: 5px 0 0;
+        }
+        
+        .candidate-body {
+            padding: 0 20px 20px;
+        }
+        
+        .candidate-about {
+            margin-bottom: 15px;
+            color: #e1e1e1;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        
+        .candidate-links {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .candidate-link {
+            color: #8a2be2;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .candidate-link:hover {
+            text-decoration: underline;
+        }
+        
+        .view-profile-btn {
+            background: linear-gradient(90deg, #ff69b4, #8a2be2);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            background-color: #1e1e2d;
+            border-radius: 8px;
+        }
+        
+        .no-results h2 {
+            margin-top: 0;
+        }
+        
+        .no-results p {
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/candidates/search" class="back-link">← Back to Search</a>
+        
+        <h1>Candidate Search Results</h1>
+        
+        <div class="search-summary" th:if="${location != null || skill != null || keyword != null}">
+            <p>
+                Search results for: 
+                <span th:if="${location != null && !location.isEmpty()}" class="search-term" th:text="'Location: ' + ${location}">Location: New York</span>
+                <span th:if="${location != null && !location.isEmpty() && (skill != null && !skill.isEmpty() || keyword != null && !keyword.isEmpty())}">, </span>
+                <span th:if="${skill != null && !skill.isEmpty()}" class="search-term" th:text="'Skill: ' + ${skill}">Skill: Java</span>
+                <span th:if="${skill != null && !skill.isEmpty() && keyword != null && !keyword.isEmpty()}">, </span>
+                <span th:if="${keyword != null && !keyword.isEmpty()}" class="search-term" th:text="'Keyword: ' + ${keyword}">Keyword: Developer</span>
+            </p>
+        </div>
+        
+        <p class="result-count" th:text="${resultCount + ' candidate(s) found'}">3 candidates found</p>
+        
+        <div class="filter-section">
+            <span class="filter-label">Refine your search:</span>
+            <a href="/candidates/search" class="search-again-btn">New Search</a>
+        </div>
+        
+        <!-- No results message -->
+        <div class="no-results" th:if="${candidates == null || candidates.isEmpty()}">
+            <h2>No candidates found</h2>
+            <p>Try adjusting your search criteria to get more results.</p>
+            <a href="/candidates/search" class="view-profile-btn">Start a New Search</a>
+        </div>
+        
+        <!-- Candidate results grid -->
+        <div class="candidate-grid" th:if="${candidates != null && !candidates.isEmpty()}">
+            <div class="candidate-card" th:each="candidate : ${candidates}">
+                <div class="candidate-header">
+                    <div class="candidate-avatar" th:if="${candidate.profilePic != null && !candidate.profilePic.isEmpty()}">
+                        <img th:src="@{'/uploads/' + ${candidate.profilePic}}" alt="Profile Picture">
+                    </div>
+                    <div class="candidate-avatar" th:if="${candidate.profilePic == null || candidate.profilePic.isEmpty()}">
+                        <span th:text="${candidate.user.firstName.substring(0,1)}">A</span>
+                    </div>
+                    
+                    <div class="candidate-info">
+                        <h3 class="candidate-name" th:text="${candidate.user.firstName + ' ' + candidate.user.lastName}">John Doe</h3>
+                        <p class="candidate-location" th:text="${candidate.location != null && !candidate.location.isEmpty() ? candidate.location : 'Location not specified'}">New York, NY</p>
+                    </div>
+                </div>
+                
+                <div class="candidate-body">
+                    <p class="candidate-about" th:text="${candidate.about != null && !candidate.about.isEmpty() ? candidate.about : 'No profile description available.'}">
+                        Software Engineer with 5+ years of experience in full-stack development.
+                    </p>
+                    
+                    <div class="candidate-links">
+                        <a th:if="${candidate.linkedinUrl != null && !candidate.linkedinUrl.isEmpty()}" 
+                           th:href="${candidate.linkedinUrl}" class="candidate-link" target="_blank">LinkedIn</a>
+                        <a th:if="${candidate.githubUrl != null && !candidate.githubUrl.isEmpty()}" 
+                           th:href="${candidate.githubUrl}" class="candidate-link" target="_blank">GitHub</a>
+                        <a th:if="${candidate.websiteUrl != null && !candidate.websiteUrl.isEmpty()}" 
+                           th:href="${candidate.websiteUrl}" class="candidate-link" target="_blank">Portfolio</a>
+                    </div>
+                    
+                    <a th:href="@{'/seeker/profile/' + ${candidate.id}}" class="view-profile-btn">View Full Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

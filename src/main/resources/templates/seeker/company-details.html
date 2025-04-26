@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${companyName + ' - OpnHire'}">Company Name - OpnHire</title>
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: #1e1e2d;
+            --body-bg: #121212;
+            --sidebar-bg: #1a1a25;
+            --header-bg: #121218;
+            --accent-color: #ff69b4;
+            --border-radius: 8px;
+            --sidebar-width: 220px;
+            --header-height: 60px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--body-bg);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            z-index: 100;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            height: var(--header-height);
+        }
+        
+        .sidebar-user {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        
+        .nav-list {
+            list-style-type: none;
+            padding: 15px 0;
+        }
+        
+        .nav-item {
+            padding: 10px 15px;
+            margin: 5px 10px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active {
+            background-color: rgba(138, 43, 226, 0.2);
+            color: white;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Header styles */
+        .header {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: var(--header-bg);
+            z-index: 99;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 160px;
+            z-index: 100;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 10px 15px;
+            color: white;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .avatar-circle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .avatar-circle:hover {
+            background-color: #3c3c4a;
+        }
+        
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding-top: var(--header-height);
+            min-height: 100vh;
+        }
+        
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .back-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Company header styles */
+        .company-header {
+            padding: 30px;
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        
+        .company-logo-large {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--border-radius);
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .company-logo-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+        }
+        
+        .company-info-container {
+            flex: 1;
+        }
+        
+        .company-name-large {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .company-location-large {
+            font-size: 16px;
+            color: #a0a0a0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .company-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .company-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary-color);
+            text-decoration: none;
+            background-color: rgba(138, 43, 226, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .company-link:hover {
+            background-color: rgba(138, 43, 226, 0.2);
+        }
+        
+        .company-link svg {
+            margin-right: 8px;
+        }
+        
+        .company-description {
+            padding: 0 30px 30px;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        
+        /* Recruiter section */
+        .recruiter-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .recruiter-card {
+            background-color: #242436;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .recruiter-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .recruiter-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #2c2c3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+            color: white;
+        }
+        
+        .recruiter-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .recruiter-details {
+            flex: 1;
+        }
+        
+        .recruiter-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .recruiter-title {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+        
+        .recruiter-contact {
+            margin-top: 15px;
+        }
+        
+        .recruiter-email {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+        
+        .recruiter-email svg {
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
+        
+        /* Jobs section */
+        .job-card {
+            background-color: #242436;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .job-header {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            align-items: center;
+        }
+        
+        .job-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .job-date {
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+        
+        .job-body {
+            padding: 15px;
+        }
+        
+        .job-details {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .job-location, .job-type, .job-salary {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+        
+        .job-location svg, .job-type svg, .job-salary svg {
+            margin-right: 5px;
+            color: var(--accent-color);
+        }
+        
+        .job-skills {
+            margin-bottom: 15px;
+        }
+        
+        .job-skill-tag {
+            display: inline-block;
+            background-color: rgba(138, 43, 226, 0.1);
+            color: var(--primary-color);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .job-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .btn-view-job {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .company-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .recruiter-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 600;">
+                <span style="color: white;">Opn</span><span style="color: #ff69b4;">Hire</span>
+            </h1>
+        </div>
+        
+        <div class="sidebar-user">
+            <!-- Show uploaded profile picture if available -->
+            <div class="user-avatar" th:if="${seeker != null && seeker.profilePic != null && !seeker.profilePic.isEmpty()}">
+                <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </div>
+            
+            <!-- Show first letter of name if no profile picture -->
+            <div class="user-avatar" th:if="${seeker == null || seeker.profilePic == null || seeker.profilePic.isEmpty()}" th:text="${session.user != null ? session.user.firstName.substring(0, 1).toUpperCase() : 'U'}">A</div>
+            
+            <div class="user-info">
+                <div class="user-name" th:if="${session.user != null}" th:text="${session.user.firstName + ' ' + session.user.lastName}">Alapan Sen</div>
+                <div class="user-role" th:if="${seeker != null && seeker.title != null && !seeker.title.isEmpty()}" th:text="${seeker.title}">Senior Developer</div>
+                <div class="user-role" th:if="${seeker == null || seeker.title == null || seeker.title.isEmpty()}" th:text="${#strings.capitalize(#strings.toLowerCase(session.user.role))}">Seeker</div>
+            </div>
+        </div>
+        
+        <!-- Navigation links - include from fragments -->
+        <div th:replace="~{nav-links :: seeker-nav}"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div style="display: flex; align-items: center;">
+            <a href="/companies" class="back-link" style="margin-right: 15px;">
+                ← Back to Companies
+            </a>
+            <h1 style="font-size: 22px; margin: 0;" th:text="${companyName}">Company Name</h1>
+        </div>
+        
+        <div class="header-actions">
+            <a href="/notifications" class="notification-link" style="text-decoration: none; color: white; margin-right: 20px; position: relative; display: inline-block;">
+                <span style="font-size: 24px; display: inline-block;">🔔</span>
+                <span th:if="${session.unreadNotificationCount != null && session.unreadNotificationCount > 0}" 
+                      class="notification-badge"
+                      th:text="${session.unreadNotificationCount}">3</span>
+            </a>
+            
+            <div class="user-menu">
+                <!-- Show uploaded profile picture if available -->
+                <div class="avatar-circle" th:if="${seeker != null && seeker.profilePic != null && !seeker.profilePic.isEmpty()}" onclick="toggleUserDropdown()">
+                    <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                </div>
+                
+                <!-- Show first letter of name if no profile picture -->
+                <div class="avatar-circle" th:if="${seeker == null || seeker.profilePic == null || seeker.profilePic.isEmpty()}" 
+                     onclick="toggleUserDropdown()" 
+                     th:text="${session.user != null ? session.user.firstName.substring(0, 1).toUpperCase() : 'U'}">A</div>
+                
+                <div class="user-dropdown">
+                    <a href="/seeker-profile" class="dropdown-item">View Profile</a>
+                    <a href="/preferences" class="dropdown-item">Preferences</a>
+                    <a href="/logout" class="dropdown-item">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Company Profile Section -->
+            <div class="card">
+                <!-- Company Header -->
+                <div class="company-header">
+                    <div class="company-logo-large" th:if="${representative.companyLogo == null || representative.companyLogo.isEmpty()}"
+                          th:text="${companyName != null && !companyName.isEmpty() ? companyName.substring(0, 1).toUpperCase() : 'C'}">C</div>
+                    <div class="company-logo-large" th:if="${representative.companyLogo != null && !representative.companyLogo.isEmpty()}">
+                        <img th:src="@{'/uploads/' + ${representative.companyLogo}}" alt="Company Logo">
+                    </div>
+                    
+                    <div class="company-info-container">
+                        <h1 class="company-name-large" th:text="${companyName}">Company Name</h1>
+                        <div class="company-location-large" th:if="${representative.location != null && !representative.location.isEmpty()}">
+                            <span style="margin-right: 8px;">📍</span>
+                            <span th:text="${representative.location}">San Francisco, CA</span>
+                        </div>
+                        
+                        <div class="company-links">
+                            <a th:if="${representative.websiteUrl != null && !representative.websiteUrl.isEmpty()}" 
+                               th:href="${representative.websiteUrl}" 
+                               class="company-link" 
+                               target="_blank">
+                                🌐 Website
+                            </a>
+                            <a th:if="${representative.linkedinUrl != null && !representative.linkedinUrl.isEmpty()}" 
+                               th:href="${representative.linkedinUrl}" 
+                               class="company-link" 
+                               target="_blank">
+                                📱 LinkedIn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Company Description -->
+                <div class="company-description" th:if="${representative.bio != null && !representative.bio.isEmpty()}">
+                    <p th:text="${representative.bio}">
+                        Company description goes here. This is placeholder text to show what a company description might look like in this layout.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Recruiters Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h2 class="section-title">Recruiters</h2>
+                </div>
+                
+                <!-- Display message when no recruiters are available -->
+                <div th:if="${recruiters == null || #lists.isEmpty(recruiters)}" style="text-align: center; padding: 40px;">
+                    <p>No recruiters found for this company.</p>
+                </div>
+                
+                <!-- Recruiters Grid -->
+                <div th:if="${recruiters != null && !#lists.isEmpty(recruiters)}" class="recruiter-list">
+                    <div th:each="recruiter : ${recruiters}" class="recruiter-card">
+                        <div class="recruiter-header">
+                            <div class="recruiter-avatar" th:text="${recruiter.user.firstName != null ? recruiter.user.firstName.substring(0, 1).toUpperCase() : 'R'}">R</div>
+                            <div class="recruiter-details">
+                                <h3 class="recruiter-name" th:text="${recruiter.user.firstName + ' ' + recruiter.user.lastName}">Recruiter Name</h3>
+                                <div class="recruiter-title">Recruiter at <span th:text="${companyName}">Company</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="recruiter-contact" th:if="${recruiter.user.email != null && !recruiter.user.email.isEmpty()}">
+                            <div class="recruiter-email">
+                                <span style="margin-right: 5px;">✉️</span>
+                                <span th:text="${recruiter.user.email}">recruiter@company.com</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Jobs Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h2 class="section-title">Open Positions</h2>
+                </div>
+                
+                <!-- Display message when no jobs are available -->
+                <div th:if="${jobs == null || #lists.isEmpty(jobs)}" style="text-align: center; padding: 40px;">
+                    <p>No open positions available at this company.</p>
+                </div>
+                
+                <!-- Jobs List -->
+                <div th:if="${jobs != null && !#lists.isEmpty(jobs)}" style="padding: 20px;">
+                    <div th:each="job : ${jobs}" class="job-card">
+                        <div class="job-header">
+                            <h3 class="job-title" th:text="${job.title}">Job Title</h3>
+                            <div class="job-date" th:text="${'Posted on ' + #temporals.format(job.postingDate, 'dd MMM yyyy')}">Posted on 01 May 2023</div>
+                        </div>
+                        
+                        <div class="job-body">
+                            <div class="job-details">
+                                <div class="job-location">
+                                    <span style="margin-right: 5px;">📍</span>
+                                    <span th:text="${job.location}">Location</span>
+                                </div>
+                                <div class="job-type">
+                                    <span style="margin-right: 5px;">🕒</span>
+                                    <span th:text="${job.jobType}">Full-time</span>
+                                </div>
+                                <div class="job-salary" th:if="${job.salary != null && !job.salary.isEmpty()}">
+                                    <span style="margin-right: 5px;">💰</span>
+                                    <span th:text="${job.salary}">$100K - $150K</span>
+                                </div>
+                            </div>
+                            
+                            <div class="job-skills" th:if="${job.skillsRequired != null && !job.skillsRequired.isEmpty()}">
+                                <span th:each="skill : ${#strings.arraySplit(job.skillsRequired, ',')}" 
+                                      class="job-skill-tag" 
+                                      th:text="${#strings.trim(skill)}">Skill</span>
+                            </div>
+                            
+                            <div class="job-actions">
+                                <a th:href="@{'/jobs/' + ${job.id}}" class="btn-view-job">View Job</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // User dropdown functionality
+            const userAvatar = document.querySelector('.avatar-circle');
+            const dropdown = document.querySelector('.user-dropdown');
+            
+            function toggleUserDropdown() {
+                if (dropdown.style.display === 'block') {
+                    dropdown.style.display = 'none';
+                } else {
+                    dropdown.style.display = 'block';
+                }
+            }
+            
+            // Assign the function
+            window.toggleUserDropdown = toggleUserDropdown;
+            
+            // Close dropdown when clicking elsewhere
+            document.addEventListener('click', function(event) {
+                if (dropdown && userAvatar && event.target !== userAvatar && !userAvatar.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

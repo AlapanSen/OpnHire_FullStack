@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Jobs List Fragment -->
+    <div th:fragment="jobsList" class="jobs-container">
+        <style>
+            .job-details {
+                margin-bottom: 15px !important;
+            }
+            
+            .company-logo {
+                background: linear-gradient(145deg, #8a2be2, #ff69b4) !important;
+                color: white !important;
+                font-weight: bold !important;
+                font-size: 16px !important;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .company-logo img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        </style>
+        <!-- Job Card - Repeat for each job -->
+        <div class="job-card" th:each="job : ${recommendedJobs}">
+            <div class="job-header">
+                <!-- Display company logo if available -->
+                <div class="company-logo">
+                    <img th:if="${job.recruiter.companyLogo != null && !job.recruiter.companyLogo.isEmpty()}" 
+                         th:src="@{'/uploads/' + ${job.recruiter.companyLogo}}" 
+                         alt="Company Logo">
+                    <span th:if="${job.recruiter.companyLogo == null || job.recruiter.companyLogo.isEmpty()}" 
+                          th:text="${job.recruiter.company != null && !job.recruiter.company.isEmpty() ? job.recruiter.company.substring(0, 1).toUpperCase() : 'C'}">G</span>
+                </div>
+                <button class="bookmark-btn" th:attr="data-job-id=${job.id}" 
+                       th:onclick="'toggleSaveJob(' + ${job.id} + ', this)'"
+                       th:class="${savedJobIds != null && savedJobIds.contains(job.id)} ? 'bookmark-btn saved' : 'bookmark-btn'">
+                    🔖
+                </button>
+            </div>
+            <h3 class="job-title" th:text="${job.title}">Senior Frontend Developer</h3>
+            <p class="company-name" th:text="${job.recruiter.company}">Google</p>
+            <p class="job-location">📍 <span th:text="${job.location}">Mountain View, CA</span></p>
+            
+            <div class="tags-container">
+                <span class="tag" th:each="skill : ${#strings.arraySplit(job.skillsRequired, ',')}" th:text="${skill}">React</span>
+            </div>
+            
+            <div class="job-details">
+                <div class="salary" th:text="${job.salary != null && !job.salary.startsWith('$') ? '$' + job.salary : job.salary}">$120K - $160K</div>
+                <div class="posted-time" th:text="${'Posted ' + #temporals.format(job.postingDate, 'MMM dd, yyyy')}">Posted 2 days ago</div>
+            </div>
+            
+            <a th:href="${'/jobs/' + job.id}" class="btn-apply">Apply Now</a>
+        </div>
+    </div>
+</body>
+</html> 

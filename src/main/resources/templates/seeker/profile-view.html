@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Profile - OpnHire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #e1e1e1;
+            margin-bottom: 20px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .preview-card {
+            background-color: #1e1e2d;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .preview-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            background-color: #2a2a3a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin-right: 20px;
+            overflow: hidden;
+        }
+        
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .user-title {
+            color: #a0a0a0;
+            margin-bottom: 5px;
+        }
+        
+        .user-location {
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+        
+        .profile-links {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .profile-link {
+            color: #8a2be2;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .profile-link:hover {
+            text-decoration: underline;
+        }
+        
+        .about-me {
+            margin-top: 20px;
+            line-height: 1.6;
+            color: #e1e1e1;
+        }
+        
+        .no-data {
+            color: #777;
+            font-style: italic;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            margin-top: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .resume-section {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: rgba(40, 40, 60, 0.6);
+            border-radius: 8px;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #a0a0a0;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            color: #ffffff;
+        }
+        
+        .btn-download {
+            background: linear-gradient(90deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/applications/review" class="back-link">← Back to Applications</a>
+        
+        <div class="page-header">
+            <h1>Candidate Profile</h1>
+        </div>
+        
+        <!-- User Profile -->
+        <div class="preview-card">
+            <div class="preview-header">
+                <!-- Show uploaded profile picture if available -->
+                <div class="profile-picture" th:if="${seeker.profilePic != null && !seeker.profilePic.isEmpty()}">
+                    <img th:src="@{'/uploads/' + ${seeker.profilePic}}" alt="Profile Picture">
+                </div>
+                
+                <!-- Show first letter of user's name if no profile picture -->
+                <div class="profile-picture" th:if="${seeker.profilePic == null || seeker.profilePic.isEmpty()}">
+                    <span th:text="${seeker.user != null ? seeker.user.firstName.substring(0,1).toUpperCase() : 'U'}">A</span>
+                </div>
+                
+                <div>
+                    <div class="user-name" th:text="${seeker.user != null ? seeker.user.firstName + ' ' + seeker.user.lastName : 'User Name'}">John Doe</div>
+                    <div class="user-title" th:if="${seeker.title != null && !seeker.title.isEmpty()}" th:text="${seeker.title}" style="color: #a0a0a0; margin-bottom: 5px;">Senior Developer</div>
+                    <div class="user-location" th:text="${seeker.location != null && !seeker.location.isEmpty() ? seeker.location : 'Location not specified'}">San Francisco, CA</div>
+                    <div class="employment-status" 
+                         th:if="${seeker.employmentStatus != null}" 
+                         th:text="${seeker.employmentStatus.displayName}" 
+                         th:style="${seeker.employmentStatus.name() == 'EMPLOYED' ? 'color: #4CAF50;' : (seeker.employmentStatus.name() == 'OPEN_TO_OPPORTUNITIES' ? 'color: #FFC107;' : 'color: #2196F3;')}"
+                         style="margin-top: 5px; font-size: 14px; font-weight: 500;">Looking for Work</div>
+                    <div class="current-employer" 
+                         th:if="${seeker.employmentStatus != null && seeker.employmentStatus.name() == 'EMPLOYED' && seeker.currentEmployer != null && !seeker.currentEmployer.isEmpty()}" 
+                         style="color: #a0a0a0; font-size: 14px; margin-top: 3px;">
+                        <span>Currently at </span><span th:text="${seeker.currentEmployer}">Google</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-links">
+                <a th:if="${seeker.websiteUrl != null && !seeker.websiteUrl.isEmpty()}" 
+                   th:href="${seeker.websiteUrl}" class="profile-link" target="_blank">🌐 Portfolio</a>
+                <a th:if="${seeker.linkedinUrl != null && !seeker.linkedinUrl.isEmpty()}" 
+                   th:href="${seeker.linkedinUrl}" class="profile-link" target="_blank">📎 LinkedIn</a>
+                <a th:if="${seeker.githubUrl != null && !seeker.githubUrl.isEmpty()}" 
+                   th:href="${seeker.githubUrl}" class="profile-link" target="_blank">💻 GitHub</a>
+            </div>
+            
+            <h3 class="section-title">About</h3>
+            <div class="about-me" th:if="${seeker.about != null && !seeker.about.isEmpty()}" th:text="${seeker.about}">
+                I am a software developer with 5 years of experience in web development.
+                Currently looking for new opportunities in the tech industry.
+            </div>
+            <div class="about-me no-data" th:if="${seeker.about == null || seeker.about.isEmpty()}">
+                No bio provided.
+            </div>
+            
+            <h3 class="section-title">Resume</h3>
+            <div class="resume-section" th:if="${seeker.resume != null && !seeker.resume.isEmpty()}">
+                <p>Resume available for this candidate.</p>
+                <a th:href="@{'/uploads/' + ${seeker.resume}}" class="btn-download" target="_blank">View Resume</a>
+                <a th:href="@{'/uploads/' + ${seeker.resume}}" class="btn-download" download>Download Resume</a>
+            </div>
+            <div class="resume-section no-data" th:if="${seeker.resume == null || seeker.resume.isEmpty()}">
+                No resume uploaded.
+            </div>
+        </div>
+    </div>
+</body>

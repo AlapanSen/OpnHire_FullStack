@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - OpnHire</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .search-container {
+            margin-top: 80px;
+            margin-bottom: 30px;
+        }
+        .search-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .search-input {
+            height: 50px;
+            border-radius: 25px;
+            padding-left: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .search-button {
+            border-radius: 25px;
+            background-color: #4a6cf7;
+            color: white;
+            height: 50px;
+        }
+        .job-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .job-title {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .job-company {
+            color: #4a6cf7;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .job-location, .job-type, .job-date {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .job-salary {
+            color: #28a745;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .job-skills {
+            margin-top: 15px;
+        }
+        .skill-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            border-radius: 15px;
+            padding: 5px 10px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+            font-size: 0.8rem;
+        }
+        .save-job-btn {
+            color: #6c757d;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .save-job-btn:hover, .save-job-btn.saved {
+            color: #ffc107;
+        }
+        .apply-btn {
+            background-color: #4a6cf7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .apply-btn:hover {
+            background-color: #3a5be6;
+        }
+        .no-results {
+            text-align: center;
+            margin-top: 50px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <h4 class="mb-0 text-primary">Opn<span class="text-dark">Hire</span></h4>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/jobs">Jobs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/applications">Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/seeker-profile">Profile</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/settings">Settings</a></li>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Section -->
+    <section class="search-container">
+        <div class="container">
+            <form action="/search" method="GET" class="search-form">
+                <div class="input-group mb-3">
+                    <input type="text" name="query" class="form-control search-input" 
+                           placeholder="Search for jobs, skills, or companies..." 
+                           th:value="${query}">
+                    <button class="btn search-button" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Search Results -->
+    <section class="py-4">
+        <div class="container">
+            <h4 class="mb-4" th:if="${!jobs.isEmpty()}">
+                Search results for: <span class="text-primary" th:text="${query}"></span>
+                <small class="text-muted" th:text="'(' + ${jobs.size()} + ' results)'"></small>
+            </h4>
+            
+            <!-- No Results Message -->
+            <div class="no-results" th:if="${jobs.isEmpty()}">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <h3>No results found</h3>
+                <p>We couldn't find any jobs matching your search: <span class="text-primary" th:text="${query}"></span></p>
+                <p>Try using different keywords or check for spelling errors.</p>
+            </div>
+            
+            <!-- Job List -->
+            <div class="row">
+                <div class="col-md-12" th:each="job : ${jobs}">
+                    <div class="job-card">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <h5 class="job-title" th:text="${job.title}">Job Title</h5>
+                                <h6 class="job-company" th:text="${job.company}">Company Name</h6>
+                                <p class="job-location mb-1">
+                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                    <span th:text="${job.location}">Location</span>
+                                </p>
+                                <p class="job-type mb-1">
+                                    <i class="fas fa-briefcase me-2"></i>
+                                    <span th:text="${job.jobType}">Job Type</span>
+                                </p>
+                                <p class="job-date mb-3">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    <span th:text="${#temporals.format(job.postingDate, 'dd MMM yyyy')}">Posting Date</span>
+                                </p>
+                                <p class="job-salary" th:if="${job.salary != null}">
+                                    <i class="fas fa-money-bill-wave me-2"></i>
+                                    <span th:text="${job.salary}">$50,000 - $70,000 per year</span>
+                                </p>
+                                
+                                <!-- Skills -->
+                                <div class="job-skills">
+                                    <div th:if="${job.skillsRequired != null && !job.skillsRequired.isEmpty()}">
+                                        <span class="skill-badge" th:each="skill : ${#strings.arraySplit(job.skillsRequired, ',')}" 
+                                              th:text="${#strings.trim(skill)}">Skill</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3 d-flex flex-column align-items-end justify-content-between">
+                                <!-- Save Button -->
+                                <button class="save-job-btn mb-3" 
+                                        th:classappend="${savedJobIds != null && savedJobIds.contains(job.id)} ? 'saved' : ''"
+                                        th:onclick="'saveJob(' + ${job.id} + ')'">
+                                    <i class="fas fa-bookmark fa-lg" 
+                                       th:classappend="${savedJobIds != null && savedJobIds.contains(job.id)} ? 'fas' : 'far'"></i>
+                                </button>
+                                
+                                <!-- Apply Button -->
+                                <a th:href="@{'/jobs/' + ${job.id}}" class="apply-btn">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function saveJob(jobId) {
+            fetch('/saved-jobs/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'jobId=' + jobId,
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Toggle the bookmark icon
+                    const button = document.querySelector(`button[onclick="saveJob(${jobId})"]`);
+                    const icon = button.querySelector('i');
+                    
+                    if (icon.classList.contains('far')) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        button.classList.add('saved');
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        button.classList.remove('saved');
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html> 
