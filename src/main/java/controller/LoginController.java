@@ -91,38 +91,61 @@ public class LoginController {
     public String showSeekerDashboard(HttpSession session, Model model) {
         // Check if user is logged in and is a seeker
         User user = (User) session.getAttribute("user");
-        if (user == null || user.getRole() != User.UserRole.SEEKER) {
+        System.out.println("SEEKER DASHBOARD - Session ID: " + session.getId());
+        System.out.println("SEEKER DASHBOARD - User in session: " + (user != null ? user.getEmail() : "null"));
+        
+        if (user == null) {
+            System.out.println("SEEKER DASHBOARD - No user in session, redirecting to login");
             return "redirect:/login";
         }
         
+        if (user.getRole() != User.UserRole.SEEKER) {
+            System.out.println("SEEKER DASHBOARD - User role is not SEEKER: " + user.getRole());
+            return "redirect:/login";
+        }
+        
+        System.out.println("SEEKER DASHBOARD - Looking up seeker profile for user ID: " + user.getId());
         Seeker seeker = seekerRepository.findByUser(user);
+        
         if (seeker == null) {
+            System.out.println("SEEKER DASHBOARD - No seeker profile found for user, redirecting to login");
             return "redirect:/login";
         }
         
-        // Get statistics
-        int profileViews = (int) profileViewRepository.countBySeeker(seeker);
-        int savedJobs = (int) savedJobRepository.countBySeeker(seeker);
-        int jobApplications = (int) jobApplicationRepository.countBySeeker(seeker);
-        int profileCompletionPercentage = calculateProfileCompletionPercentage(seeker);
+        System.out.println("SEEKER DASHBOARD - Seeker profile found, collecting statistics");
         
-        // Get notifications
-        List<Notification> notifications = notificationService.getRecentNotificationsForUser(user.getId(), 5);
-        
-        // Get recommended jobs (sample implementation)
-        List<Job> recommendedJobs = jobRepository.findTop5ByOrderByCreatedAtDesc();
-        
-        // Add data to the model
-        model.addAttribute("seeker", seeker);
-        model.addAttribute("user", user);
-        model.addAttribute("profileViews", profileViews);
-        model.addAttribute("savedJobs", savedJobs);
-        model.addAttribute("jobApplications", jobApplications);
-        model.addAttribute("profileCompletionPercentage", profileCompletionPercentage);
-        model.addAttribute("notifications", notifications);
-        model.addAttribute("recommendedJobs", recommendedJobs);
-        
-        return "dashboard-seeker";
+        try {
+            // Get statistics
+            int profileViews = (int) profileViewRepository.countBySeeker(seeker);
+            int savedJobs = (int) savedJobRepository.countBySeeker(seeker);
+            int jobApplications = (int) jobApplicationRepository.countBySeeker(seeker);
+            int profileCompletionPercentage = calculateProfileCompletionPercentage(seeker);
+            
+            // Get notifications
+            List<Notification> notifications = notificationService.getRecentNotificationsForUser(user.getId(), 5);
+            
+            // Get recommended jobs (sample implementation)
+            List<Job> recommendedJobs = jobRepository.findTop5ByOrderByCreatedAtDesc();
+            
+            System.out.println("SEEKER DASHBOARD - Adding data to model");
+            
+            // Add data to the model
+            model.addAttribute("seeker", seeker);
+            model.addAttribute("user", user);
+            model.addAttribute("profileViews", profileViews);
+            model.addAttribute("savedJobs", savedJobs);
+            model.addAttribute("jobApplications", jobApplications);
+            model.addAttribute("profileCompletionPercentage", profileCompletionPercentage);
+            model.addAttribute("notifications", notifications);
+            model.addAttribute("recommendedJobs", recommendedJobs);
+            
+            System.out.println("SEEKER DASHBOARD - Returning dashboard-seeker view");
+            return "dashboard-seeker";
+        } catch (Exception e) {
+            System.err.println("SEEKER DASHBOARD - Error preparing dashboard: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/login?error=Error+loading+dashboard";
+        }
     }
     
     private int calculateProfileCompletionPercentage(Seeker seeker) {
@@ -229,7 +252,13 @@ public class LoginController {
                 return "redirect:/login";
             }
             
-            // Construct redirect path
+            // Try direct navigation instead of redirect for SEEKER role
+            if (role == User.UserRole.SEEKER) {
+                System.out.println("USING DIRECT URL instead of redirect for SEEKER");
+                return "redirect:/direct-seeker-dashboard";
+            }
+            
+            // Construct redirect path for other roles
             String redirectPath = "";
             switch (role) {
                 case ADMIN:
@@ -237,9 +266,6 @@ public class LoginController {
                     break;
                 case RECRUITER:
                     redirectPath = "/dashboard/recruiter";
-                    break;
-                case SEEKER:
-                    redirectPath = "/dashboard/seeker";
                     break;
                 default:
                     System.out.println("LOGIN ERROR - Invalid role: " + role + " for user: " + email);
@@ -431,6 +457,67 @@ public class LoginController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Server error: " + e.getMessage()));
+        }
+    }
+
+    // Add a direct URL pattern that doesn't use a redirect
+    @GetMapping("/direct-seeker-dashboard")
+    public String directSeekerDashboard(HttpSession session, Model model) {
+        System.out.println("DIRECT DASHBOARD - Session ID: " + session.getId());
+        
+        // Check if user is logged in and is a seeker
+        User user = (User) session.getAttribute("user");
+        System.out.println("DIRECT DASHBOARD - User in session: " + (user != null ? user.getEmail() : "null"));
+        
+        if (user == null) {
+            System.out.println("DIRECT DASHBOARD - No user in session");
+            return "login";
+        }
+        
+        System.out.println("DIRECT DASHBOARD - User role: " + user.getRole());
+        
+        if (user.getRole() != User.UserRole.SEEKER) {
+            System.out.println("DIRECT DASHBOARD - User role is not SEEKER");
+            return "login";
+        }
+        
+        System.out.println("DIRECT DASHBOARD - Looking up seeker profile");
+        Seeker seeker = seekerRepository.findByUser(user);
+        
+        if (seeker == null) {
+            System.out.println("DIRECT DASHBOARD - No seeker profile found");
+            return "login";
+        }
+        
+        try {
+            // Get statistics
+            int profileViews = (int) profileViewRepository.countBySeeker(seeker);
+            int savedJobs = (int) savedJobRepository.countBySeeker(seeker);
+            int jobApplications = (int) jobApplicationRepository.countBySeeker(seeker);
+            int profileCompletionPercentage = calculateProfileCompletionPercentage(seeker);
+            
+            // Get notifications
+            List<Notification> notifications = notificationService.getRecentNotificationsForUser(user.getId(), 5);
+            
+            // Get recommended jobs (sample implementation)
+            List<Job> recommendedJobs = jobRepository.findTop5ByOrderByCreatedAtDesc();
+            
+            // Add data to the model
+            model.addAttribute("seeker", seeker);
+            model.addAttribute("user", user);
+            model.addAttribute("profileViews", profileViews);
+            model.addAttribute("savedJobs", savedJobs);
+            model.addAttribute("jobApplications", jobApplications);
+            model.addAttribute("profileCompletionPercentage", profileCompletionPercentage);
+            model.addAttribute("notifications", notifications);
+            model.addAttribute("recommendedJobs", recommendedJobs);
+            
+            System.out.println("DIRECT DASHBOARD - Returning dashboard-seeker view");
+            return "dashboard-seeker";
+        } catch (Exception e) {
+            System.err.println("DIRECT DASHBOARD - Error: " + e.getMessage());
+            e.printStackTrace();
+            return "login";
         }
     }
 } 
