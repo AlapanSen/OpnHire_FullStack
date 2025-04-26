@@ -254,8 +254,8 @@ public class LoginController {
             
             // Try direct navigation instead of redirect for SEEKER role
             if (role == User.UserRole.SEEKER) {
-                System.out.println("USING DIRECT URL instead of redirect for SEEKER");
-                return "redirect:/direct-seeker-dashboard";
+                System.out.println("Redirecting to regular seeker dashboard");
+                return "redirect:/dashboard/seeker";
             }
             
             // Construct redirect path for other roles
