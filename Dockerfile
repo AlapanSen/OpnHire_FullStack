@@ -12,6 +12,9 @@ COPY src ./src
 COPY Procfile system.properties ./
 
 RUN ./mvnw package -DskipTests
+
+# Make sure to expose port 8080
 EXPOSE 8080
+ENV PORT=8080
 
 CMD ["java", "-jar", "target/UserBackend-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"] 
